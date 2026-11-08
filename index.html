@@ -1,0 +1,1351 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>マントラビーツ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Baloo+2:wght@600;800&family=Noto+Serif+Devanagari:wght@600;700&display=swap" rel="stylesheet" />
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <style>
+      :root {
+        --ink: #f4f1ff; --ink-dim: rgba(244,241,255,.62);
+        --panel: rgba(16,10,38,.9); --panel-line: rgba(178,156,255,.35);
+        --accent: #ff5da2; --accent2: #37e0c8;
+        --btn-grad-a: #ff5da2; --btn-grad-b: #7a4dff;
+        --chip: rgba(255,255,255,.08); --chip-on: #ff5da2;
+        --danger: #ff7a7a; --ok: #37e0c8;
+      }
+      @media (prefers-color-scheme: light) {
+        :root { --ink:#2b1650; --ink-dim:rgba(43,22,80,.62); --panel:rgba(255,255,255,.94); --panel-line:rgba(122,77,255,.35); --chip:rgba(43,22,80,.08); }
+      }
+      *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+      html,body{height:100%}
+      body{margin:0;overflow:hidden;font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none}
+      #stage{position:fixed;inset:0;overflow:hidden}
+      #game{position:absolute;inset:0;width:100%;height:100%;display:block}
+      #edgeGlow{position:absolute;inset:0;pointer-events:none;opacity:0;box-shadow:inset 0 0 110px 30px rgba(255,93,162,.55),inset 0 0 46px 6px rgba(120,220,255,.5)}
+      #frameFlash{position:absolute;inset:0;pointer-events:none;opacity:0;border:3px solid rgba(255,255,255,.85);box-shadow:inset 0 0 60px rgba(255,255,255,.35)}
+      #hud{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 0;display:flex;align-items:flex-start;gap:10px;pointer-events:none;z-index:6}
+      #scoreBox{min-width:96px}
+      #scoreBox .label,#comboBox .label,#lifeBox .label{font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--ink-dim)}
+      #score{font-family:"Baloo 2","M PLUS Rounded 1c",sans-serif;font-size:29px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
+      #subInfo{font-size:11px;font-weight:700;color:var(--ink-dim);margin-top:2px;white-space:nowrap}
+      #comboBox{flex:1;text-align:center}
+      #combo{font-family:"Baloo 2",sans-serif;font-size:40px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;transition:transform .08s ease}
+      #combo.bump{transform:scale(1.14)}
+      #lifeBox{text-align:right;min-width:74px}
+      #life{font-family:"Baloo 2",sans-serif;font-size:22px;font-weight:800;line-height:1.1}
+      #life.low{color:var(--danger)}
+      #hudBtns{display:flex;gap:8px;pointer-events:auto}
+      .iconBtn{width:42px;height:42px;border-radius:50%;border:1px solid var(--panel-line);background:var(--panel);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+      .iconBtn svg{width:20px;height:20px;fill:currentColor}
+      .iconBtn:active{transform:scale(.92)}
+      #hitBtn{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);width:118px;height:118px;border-radius:50%;border:3px solid rgba(255,255,255,.75);background:radial-gradient(circle at 35% 30%,var(--btn-grad-a),var(--btn-grad-b) 78%);box-shadow:0 10px 34px rgba(122,77,255,.55),0 0 0 10px rgba(255,93,162,.14),inset 0 -10px 22px rgba(0,0,0,.28),inset 0 8px 16px rgba(255,255,255,.35);color:#fff;cursor:pointer;padding:0;display:grid;place-items:center;transition:transform .06s ease,box-shadow .06s ease,filter .06s ease;z-index:5}
+      #hitBtn .ringMark{width:52px;height:52px;border-radius:50%;border:4px solid rgba(255,255,255,.9);box-shadow:0 0 14px rgba(255,255,255,.6),inset 0 0 10px rgba(255,255,255,.45);pointer-events:none}
+      #hitBtn.pos-center{left:50%;transform:translateX(-50%)}
+      #hitBtn.pos-right{right:22px}
+      #hitBtn.pos-left{left:22px}
+      #hitBtn.pressed{transform:scale(.88);filter:brightness(1.5);box-shadow:0 4px 18px rgba(122,77,255,.6),0 0 0 18px rgba(255,93,162,.28),0 0 44px 10px rgba(255,255,255,.55),inset 0 -6px 14px rgba(0,0,0,.2)}
+      #hitBtn.pos-center.pressed{transform:translateX(-50%) scale(.88)}
+      #btnHint{position:absolute;left:0;right:0;text-align:center;bottom:calc(env(safe-area-inset-bottom,0px) + 156px);font-size:12px;font-weight:700;color:var(--ink-dim);pointer-events:none;letter-spacing:.06em;z-index:4}
+      .overlay{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(8,4,24,.55);backdrop-filter:blur(3px)}
+      @media (prefers-color-scheme: light){.overlay{background:rgba(240,236,255,.55)}}
+      .overlay[hidden]{display:none}
+      .card{width:min(460px,100%);max-height:calc(100dvh - 28px);overflow-y:auto;background:var(--panel);border:1px solid var(--panel-line);border-radius:22px;padding:24px 22px 22px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
+      .card h1{margin:0 0 4px;font-size:33px;font-weight:800;letter-spacing:.04em;background:linear-gradient(92deg,#ff5da2,#ffb84d,#37e0c8,#7a4dff);-webkit-background-clip:text;background-clip:text;color:transparent}
+      .card h2{margin:0 0 12px;font-size:20px;font-weight:800}
+      .card h3{margin:18px 0 8px;font-size:14px;font-weight:800}
+      .card p{margin:0 0 10px;font-size:14px;line-height:1.75}
+      .card p.dim{color:var(--ink-dim);font-size:12.5px;line-height:1.6}
+      .howto{margin:12px 0 16px;padding:0;list-style:none}
+      .howto li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.6;margin-bottom:8px}
+      .howto .dot{flex:none;width:22px;height:22px;margin-top:1px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--accent),var(--btn-grad-b))}
+      .bigBtn{display:block;width:100%;padding:15px;border:none;border-radius:999px;cursor:pointer;font-family:inherit;font-size:17px;font-weight:800;letter-spacing:.12em;color:#fff;background:linear-gradient(92deg,var(--accent),var(--btn-grad-b));box-shadow:0 10px 26px rgba(255,93,162,.4)}
+      .bigBtn:active{transform:scale(.97)}
+      .bigBtn:disabled{opacity:.5}
+      .ghostBtn{display:block;width:100%;padding:11px;margin-top:9px;border-radius:999px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);background:var(--chip);border:1px solid var(--panel-line)}
+      .ghostBtn:active{transform:scale(.97)}
+      .setGroup{margin-bottom:16px}
+      .setGroup .gLabel{font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--ink-dim);margin-bottom:7px}
+      .setGroup .gHint{font-size:11.5px;color:var(--ink-dim);line-height:1.5;margin-top:5px}
+      .seg{display:flex;gap:6px;flex-wrap:wrap}
+      .seg button{flex:1 1 30%;padding:10px 4px;border-radius:12px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);background:var(--chip);border:1.5px solid transparent}
+      .seg button[aria-pressed="true"]{background:var(--chip-on);color:#fff;border-color:rgba(255,255,255,.5)}
+      .seg button small{display:block;font-size:10px;font-weight:500;opacity:.78;margin-top:1px}
+      .swatches{display:flex;gap:7px;flex-wrap:wrap}
+      .swatch{flex:1 1 28%;border:1.5px solid transparent;border-radius:12px;padding:7px 5px 6px;cursor:pointer;background:var(--chip);font-family:inherit;color:var(--ink);font-size:12px;font-weight:700}
+      .swatch[aria-pressed="true"]{border-color:var(--ink);background:var(--chip)}
+      .swatch .dots{display:flex;gap:3px;justify-content:center;margin-bottom:5px}
+      .swatch .dots i{width:14px;height:14px;border-radius:50%;display:block}
+      .sliderRow{display:grid;grid-template-columns:26px 1fr 38px;align-items:center;gap:8px;margin:7px 0;font-size:12px;font-weight:800}
+      .sliderRow output{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink-dim)}
+      input[type="range"]{width:100%;accent-color:var(--accent);height:28px}
+      .statGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 14px}
+      .stat{background:var(--chip);border-radius:14px;padding:10px 14px}
+      .stat .v{font-family:"Baloo 2",sans-serif;font-size:24px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+      .stat .k{font-size:10.5px;font-weight:700;letter-spacing:.1em;color:var(--ink-dim)}
+      .judgeRows{margin:0 0 6px;font-size:13.5px}
+      .judgeRows div{display:flex;justify-content:space-between;padding:4px 2px}
+      .judgeRows b{font-variant-numeric:tabular-nums}
+      .jPerfect{color:#ffd84d}.jGreat{color:#37e0c8}.jGood{color:#8ecbff}.jMiss{color:#ff7a7a}
+      .hnRow{display:flex;gap:8px;margin:10px 0}
+      .hnRow input{flex:1;min-width:0;padding:12px 14px;border-radius:12px;border:1.5px solid var(--panel-line);background:var(--chip);color:var(--ink);font-family:inherit;font-size:15px;font-weight:700}
+      .hnRow button{flex:none;padding:12px 18px;border:none;border-radius:12px;background:linear-gradient(92deg,var(--accent),var(--btn-grad-b));color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer}
+      .hnRow button:disabled{opacity:.5}
+      .rankTabs{display:flex;gap:6px;margin:8px 0}
+      .rankTabs button{flex:1;padding:8px 4px;border-radius:999px;border:1px solid var(--panel-line);background:var(--chip);color:var(--ink);font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+      .rankTabs button[aria-pressed="true"]{background:var(--chip-on);color:#fff}
+      .rankList{list-style:none;margin:0;padding:0;font-size:13.5px}
+      .rankList li{display:flex;gap:10px;align-items:baseline;padding:6px 4px;border-bottom:1px dashed var(--panel-line)}
+      .rankList li:last-child{border-bottom:none}
+      .rankList .rk{flex:none;width:30px;font-family:"Baloo 2",sans-serif;font-weight:800;color:var(--ink-dim)}
+      .rankList .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+      .rankList .sc{font-family:"Baloo 2",sans-serif;font-weight:800;font-variant-numeric:tabular-nums}
+      .rankList .dt{flex:none;font-size:11px;color:var(--ink-dim)}
+      .rankList li.me .nm,.rankList li.me .sc{color:var(--accent)}
+      .rankNote{font-size:11.5px;color:var(--ink-dim);line-height:1.6;margin-top:8px}
+      .rankMsg{font-size:12.5px;font-weight:700;margin:6px 0;min-height:1.2em}
+      .rankMsg.ok{color:var(--ok)}
+      #phraseToast{position:absolute;left:0;right:0;top:24%;text-align:center;pointer-events:none;z-index:7;opacity:0;transition:opacity .4s ease}
+      #phraseToast.show{opacity:1}
+      #phraseToast .big{font-size:21px;font-weight:800;letter-spacing:.22em;text-shadow:0 2px 18px rgba(0,0,0,.5)}
+      #phraseToast .small{font-size:12px;font-weight:700;color:var(--ink-dim);letter-spacing:.12em;margin-top:3px}
+      @media (max-width:380px){#hitBtn{width:104px;height:104px}#btnHint{bottom:calc(env(safe-area-inset-bottom,0px) + 142px)}#combo{font-size:34px}#score{font-size:24px}#lifeBox{display:none}}
+      @media (prefers-reduced-motion: reduce){#combo{transition:none}#hitBtn{transition:none}#phraseToast{transition:none}}
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <canvas id="game"></canvas>
+      <div id="edgeGlow"></div>
+      <div id="frameFlash"></div>
+      <div id="phraseToast"><div class="big" id="phraseBig"></div><div class="small" id="phraseSmall"></div></div>
+
+      <div id="hud">
+        <div id="scoreBox">
+          <div class="label">SCORE</div>
+          <div id="score">0</div>
+          <div id="subInfo">—</div>
+        </div>
+        <div id="comboBox">
+          <div id="combo"></div>
+          <div class="label" id="comboLabel"></div>
+        </div>
+        <div id="lifeBox">
+          <div class="label">MISS</div>
+          <div id="life">—</div>
+        </div>
+        <div id="hudBtns">
+          <button class="iconBtn" id="pauseBtn" aria-label="一時停止"><svg viewBox="0 0 24 24"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z"/></svg></button>
+          <button class="iconBtn" id="settingsBtn" aria-label="設定"><svg viewBox="0 0 24 24"><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.6 7.6 0 0 0-1.7-1L14.9 3H9.1L8.7 6a7.6 7.6 0 0 0-1.7 1l-2.4-1-2 3.4L4.6 11a7.5 7.5 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.6 7.6 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6zM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7z"/></svg></button>
+        </div>
+      </div>
+
+      <div id="btnHint">梵字が中心に重なる瞬間にタップ</div>
+      <button id="hitBtn" class="pos-center" aria-label="打つ"><span class="ringMark"></span></button>
+
+      <!-- スタート -->
+      <div class="overlay" id="startOverlay">
+        <div class="card">
+          <h1>マントラビーツ</h1>
+          <p>音楽はいりません。拍は「目」で感じます。梵字が四方から中心へ一文字ずつ飛んできます。リズムはお経のように、短い節（フレーズ）を繰り返し唱える形。節の終わりには必ず息継ぎの休みが入ります。</p>
+          <div class="setGroup">
+            <div class="gLabel">難易度</div>
+            <div class="seg" id="segDiffStart">
+              <button data-val="easy">かんたん<small>ミス無制限・加速なし</small></button>
+              <button data-val="normal">ふつう<small>ミス10回で終了</small></button>
+              <button data-val="hard">むずかしい<small>ミス5回で終了</small></button>
+            </div>
+          </div>
+          <ul class="howto">
+            <li><span class="dot">1</span><span>梵字が中心のゲートに重なる瞬間に、下の大きなボタンをタップ</span></li>
+            <li><span class="dot">2</span><span>同じリズムの節が4回繰り返され、4回目だけ少しだけ変わります。覚えた節をなぞるのがコツです</span></li>
+            <li><span class="dot">3</span><span>ふつう／むずかしいは進むほどテンポと曼荼羅の回転が少しずつ速くなり、終盤は密な連打の節が来ます</span></li>
+          </ul>
+          <button class="bigBtn" id="startBtn">スタート</button>
+          <button class="ghostBtn" id="startRankingBtn">ランキングを見る</button>
+          <button class="ghostBtn" id="startSettingsBtn">設定（見た目・ボタン位置・振動・テンポ）</button>
+        </div>
+      </div>
+
+      <!-- 一時停止 -->
+      <div class="overlay" id="pauseOverlay" hidden>
+        <div class="card">
+          <h2 id="pauseTitle">一時停止中</h2>
+          <div class="statGrid">
+            <div class="stat"><div class="v" id="stScore">0</div><div class="k">SCORE</div></div>
+            <div class="stat"><div class="v" id="stCombo">0</div><div class="k">MAX COMBO</div></div>
+            <div class="stat"><div class="v" id="stNotes">0</div><div class="k">ノーツ数</div></div>
+            <div class="stat"><div class="v" id="stAcc">—</div><div class="k">精度</div></div>
+          </div>
+          <div class="judgeRows">
+            <div><span class="jPerfect">PERFECT</span><b id="stPerfect">0</b></div>
+            <div><span class="jGreat">GREAT</span><b id="stGreat">0</b></div>
+            <div><span class="jGood">GOOD</span><b id="stGood">0</b></div>
+            <div><span class="jMiss">MISS</span><b id="stMiss">0</b></div>
+          </div>
+          <button class="bigBtn" id="resumeBtn">つづける</button>
+          <button class="ghostBtn" id="restartBtn">はじめから</button>
+          <button class="ghostBtn" id="quitBtn">タイトルへ（ここで終了）</button>
+          <button class="ghostBtn" id="pauseSettingsBtn">設定</button>
+        </div>
+      </div>
+
+      <!-- 結果 -->
+      <div class="overlay" id="resultOverlay" hidden>
+        <div class="card">
+          <h2 id="resultTitle">終了</h2>
+          <p class="dim" id="resultReason"></p>
+          <div class="statGrid">
+            <div class="stat"><div class="v" id="rsScore">0</div><div class="k">SCORE</div></div>
+            <div class="stat"><div class="v" id="rsCombo">0</div><div class="k">MAX COMBO</div></div>
+            <div class="stat"><div class="v" id="rsNotes">0</div><div class="k">ノーツ数</div></div>
+            <div class="stat"><div class="v" id="rsAcc">—</div><div class="k">精度</div></div>
+          </div>
+          <div class="judgeRows">
+            <div><span class="jPerfect">PERFECT</span><b id="rsPerfect">0</b></div>
+            <div><span class="jGreat">GREAT</span><b id="rsGreat">0</b></div>
+            <div><span class="jGood">GOOD</span><b id="rsGood">0</b></div>
+            <div><span class="jMiss">MISS</span><b id="rsMiss">0</b></div>
+          </div>
+          <h3>スコアを登録する</h3>
+          <div class="hnRow">
+            <input id="hnInput" type="text" maxlength="16" placeholder="ハンドルネーム" autocomplete="nickname" />
+            <button id="submitScoreBtn">登録</button>
+          </div>
+          <div class="rankMsg" id="submitMsg"></div>
+          <h3 id="resultRankTitle">ランキング</h3>
+          <ol class="rankList" id="resultRankList"></ol>
+          <div class="rankNote" id="resultRankNote"></div>
+          <button class="bigBtn" id="againBtn" style="margin-top:16px;">もう一度</button>
+          <button class="ghostBtn" id="toTitleBtn">タイトルへ</button>
+        </div>
+      </div>
+
+      <!-- ランキング -->
+      <div class="overlay" id="rankingOverlay" hidden>
+        <div class="card">
+          <h2>ランキング</h2>
+          <div class="rankTabs" id="rankTabs">
+            <button data-val="easy">かんたん</button>
+            <button data-val="normal">ふつう</button>
+            <button data-val="hard">むずかしい</button>
+          </div>
+          <ol class="rankList" id="rankList"></ol>
+          <div class="rankNote" id="rankNote"></div>
+          <button class="bigBtn" id="rankingCloseBtn" style="margin-top:14px;">閉じる</button>
+        </div>
+      </div>
+
+      <!-- 設定 -->
+      <div class="overlay" id="settingsOverlay" hidden>
+        <div class="card">
+          <h2>設定</h2>
+          <div class="setGroup">
+            <div class="gLabel">難易度</div>
+            <div class="seg" id="segDiff">
+              <button data-val="easy">かんたん<small>無制限・加速なし</small></button>
+              <button data-val="normal">ふつう<small>ミス10回</small></button>
+              <button data-val="hard">むずかしい<small>ミス5回</small></button>
+            </div>
+            <div class="gHint">難易度は次にスタートした回から適用されます。</div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">カラープリセット</div>
+            <div class="swatches" id="colorSwatches"></div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">模様プリセット（曼荼羅の構成）</div>
+            <div class="seg" id="segPattern">
+              <button data-val="standard">標準<small>全層</small></button>
+              <button data-val="lotus">蓮華<small>花弁中心</small></button>
+              <button data-val="geo">幾何<small>菱形と輪</small></button>
+              <button data-val="jewel">宝珠<small>輪と玉だけ</small></button>
+              <button data-val="dense">重層<small>二重の花弁</small></button>
+            </div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">色の微調整（RGB）</div>
+            <div class="sliderRow"><span style="color:#ff7a7a">R</span><input type="range" id="tintR" min="-60" max="60" step="1" /><output id="tintRVal">0</output></div>
+            <div class="sliderRow"><span style="color:#37e0c8">G</span><input type="range" id="tintG" min="-60" max="60" step="1" /><output id="tintGVal">0</output></div>
+            <div class="sliderRow"><span style="color:#8ecbff">B</span><input type="range" id="tintB" min="-60" max="60" step="1" /><output id="tintBVal">0</output></div>
+            <div class="sliderRow"><span>色相</span><input type="range" id="hueShift" min="-180" max="180" step="1" /><output id="hueShiftVal">0</output></div>
+            <div class="gHint">RGBは曼荼羅の色味に寄せます。色相は全体を回します。設定はこの端末に保存されます。</div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">ボタンの位置</div>
+            <div class="seg" id="segPos">
+              <button data-val="left">左下<small>サウスポー</small></button>
+              <button data-val="center">中央下</button>
+              <button data-val="right">右下</button>
+            </div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">振動</div>
+            <div class="seg" id="segVib">
+              <button data-val="off">OFF<small>電池を食わない</small></button>
+              <button data-val="hit">ヒット時のみ<small>短く1回</small></button>
+            </div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">効果音</div>
+            <div class="seg" id="segSound">
+              <button data-val="off">OFF<small>無音で成立</small></button>
+              <button data-val="on">ON<small>ヒット音のみ</small></button>
+            </div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">開始テンポ（拍の間隔）</div>
+            <div class="seg" id="segBpm">
+              <button data-val="100">100<small>ゆったり</small></button>
+              <button data-val="120">120<small>ふつう</small></button>
+              <button data-val="140">140<small>はやい</small></button>
+            </div>
+            <div class="gHint">ふつう／むずかしいでは、ここから少しずつ速くなります。</div>
+          </div>
+          <button class="bigBtn" id="settingsCloseBtn">閉じる</button>
+          <p class="dim" style="margin-top:12px;">※ iPhoneのSafariは振動APIに未対応のため、振動ONでも鳴らない場合があります。</p>
+        </div>
+      </div>
+    </div>
+    <script>
+      "use strict";
+      // ============================================================
+      // Firebase 接続設定 — ランキングを使うときはここだけ差し替える。
+      // GitHub Pages に置く本体はこの index.html ひとつで完結する。
+      // 未設定（apiKey / projectId が空）の間は、ランキングは
+      // この端末の localStorage 内ランキングに自動でフォールバックする。
+      // Firestore: コレクション "scores" / { name, score, difficulty, createdAt }
+      // ルール例: 読み取りと追加のみ許可し、更新・削除は禁止する。
+      // ============================================================
+      var firebaseConfig = {
+        apiKey: "AIzaSyAkWPC62njvB75xuXAoHv_vYbbPScAif2g",
+        authDomain: "mantra-beats.firebaseapp.com",
+        projectId: "mantra-beats",
+        storageBucket: "mantra-beats.firebasestorage.app",
+        messagingSenderId: "681565993887",
+        appId: "1:681565993887:web:7864494131da8415a4dbaa",
+        measurementId: "G-PJEBTYM6JN"
+      };
+
+      // ---------- ランキング（Firebase / 端末内フォールバック） ----------
+      var LS_SETTINGS = "mantrabeats_settings_v2";
+      var LS_HN = "mantrabeats_hn";
+      var LS_SCORES = "mantrabeats_local_scores";
+      var firestoreDb = null;
+      var firebaseReady = false;
+      function firebaseConfigured() {
+        return !!(firebaseConfig.apiKey && firebaseConfig.projectId);
+      }
+      function initFirebase() {
+        if (!firebaseConfigured()) return;
+        try {
+          if (typeof firebase === "undefined" || !firebase.firestore) return;
+          if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+          firestoreDb = firebase.firestore();
+          firebaseReady = true;
+        } catch (e) { firebaseReady = false; firestoreDb = null; }
+      }
+      initFirebase();
+      function rankingModeLabel() {
+        return firebaseReady ? "ネットランキング（Firebase）" : "端末内ランキング（Firebase未設定のため、この端末の中だけの記録です）";
+      }
+      function localScores() {
+        try { var a = JSON.parse(localStorage.getItem(LS_SCORES) || "[]"); return Array.isArray(a) ? a : []; }
+        catch (e) { return []; }
+      }
+      function saveLocalScore(entry) {
+        var a = localScores(); a.push(entry);
+        a.sort(function (x, y) { return y.score - x.score; });
+        // 難易度ごとに最大200件だけ残す
+        var kept = [];
+        var cnt = {};
+        for (var i = 0; i < a.length; i++) { cnt[a[i].difficulty] = (cnt[a[i].difficulty] || 0) + 1; if (cnt[a[i].difficulty] <= 200) kept.push(a[i]); }
+        try { localStorage.setItem(LS_SCORES, JSON.stringify(kept)); } catch (e) {}
+      }
+      function submitScore(name, score, difficulty) {
+        var entry = { name: name, score: score, difficulty: difficulty, createdAt: new Date().toISOString() };
+        if (firebaseReady && firestoreDb) {
+          var doc = { name: name, score: score, difficulty: difficulty, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+          return firestoreDb.collection("scores").add(doc).then(function () { return "firebase"; });
+        }
+        saveLocalScore(entry);
+        return Promise.resolve("local");
+      }
+      function fetchRanking(difficulty) {
+        if (firebaseReady && firestoreDb) {
+          return firestoreDb.collection("scores").where("difficulty", "==", difficulty).orderBy("score", "desc").limit(50).get()
+            .then(function (snap) {
+              var out = [];
+              snap.forEach(function (d) {
+                var v = d.data();
+                var dt = "";
+                try { dt = v.createdAt && v.createdAt.toDate ? v.createdAt.toDate().toISOString() : (v.createdAt || ""); } catch (e) {}
+                out.push({ name: v.name || "—", score: v.score || 0, difficulty: difficulty, createdAt: dt });
+              });
+              return out;
+            })
+            .catch(function () { return localRanking(difficulty); });
+        }
+        return Promise.resolve(localRanking(difficulty));
+      }
+      function localRanking(difficulty) {
+        return localScores().filter(function (s) { return s.difficulty === difficulty; })
+          .sort(function (a, b) { return b.score - a.score; }).slice(0, 50);
+      }
+      function fmtDate(iso) {
+        if (!iso) return "";
+        var d = new Date(iso); if (isNaN(d.getTime())) return "";
+        return (d.getMonth() + 1) + "/" + d.getDate();
+      }
+      function renderRankList(ol, rows, myName, myScore) {
+        ol.innerHTML = "";
+        if (!rows.length) {
+          var li0 = document.createElement("li");
+          li0.innerHTML = '<span class="nm" style="color:var(--ink-dim)">まだ記録がありません</span>';
+          ol.appendChild(li0); return;
+        }
+        rows.forEach(function (r, i) {
+          var li = document.createElement("li");
+          if (myName && r.name === myName && r.score === myScore) li.className = "me";
+          var rk = document.createElement("span"); rk.className = "rk"; rk.textContent = (i + 1) + ".";
+          var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = r.name;
+          var sc = document.createElement("span"); sc.className = "sc"; sc.textContent = Number(r.score).toLocaleString("ja-JP");
+          var dt = document.createElement("span"); dt.className = "dt"; dt.textContent = fmtDate(r.createdAt);
+          li.appendChild(rk); li.appendChild(nm); li.appendChild(sc); li.appendChild(dt);
+          ol.appendChild(li);
+        });
+      }
+
+      // ---------- 基本 ----------
+      var canvas = document.getElementById("game");
+      var ctx = canvas.getContext("2d");
+      var edgeGlowEl = document.getElementById("edgeGlow");
+      var frameFlashEl = document.getElementById("frameFlash");
+      var scoreEl = document.getElementById("score");
+      var subInfoEl = document.getElementById("subInfo");
+      var comboEl = document.getElementById("combo");
+      var comboLabelEl = document.getElementById("comboLabel");
+      var lifeEl = document.getElementById("life");
+      var hitBtn = document.getElementById("hitBtn");
+      var btnHintEl = document.getElementById("btnHint");
+      var phraseToastEl = document.getElementById("phraseToast");
+      var phraseBigEl = document.getElementById("phraseBig");
+      var phraseSmallEl = document.getElementById("phraseSmall");
+
+      var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var lightScheme = window.matchMedia("(prefers-color-scheme: light)");
+      var PAL = null;
+      function pickPalette() {
+        if (lightScheme.matches) PAL = { bg: "#efeaff", bgDeep: "#ddd0ff", mandalaAlpha: 0.52, gate: "#3a1c96", text: "#2b1650", lighter: false };
+        else PAL = { bg: "#0a0618", bgDeep: "#050310", mandalaAlpha: 0.58, gate: "#ffffff", text: "#f4f1ff", lighter: true };
+      }
+      pickPalette();
+
+      // ---------- プリセット ----------
+      // カラー: 5層ぶんの色相 [外周, 蓮弁24, 幾何, 蓮弁16, 芯]
+      var COLOR_PRESETS = {
+        rainbow: { label: "虹", hues: [265, 218, 168, 42, 335], sat: null },
+        gold:    { label: "金紅", hues: [45, 32, 18, 50, 0], sat: null },
+        ocean:   { label: "青碧", hues: [222, 205, 172, 195, 245], sat: null },
+        violet:  { label: "紫苑", hues: [272, 288, 252, 300, 262], sat: null },
+        sakura:  { label: "桜", hues: [332, 344, 168, 318, 296], sat: null },
+        ink:     { label: "墨", hues: [260, 260, 260, 260, 260], sat: 10 }
+      };
+      var DIFFS = {
+        easy:   { label: "かんたん", missLimit: Infinity, accelMax: 0, accelSec: 1, rotAccel: 0 },
+        normal: { label: "ふつう", missLimit: 10, accelMax: 0.25, accelSec: 240, rotAccel: 0.5 },
+        hard:   { label: "むずかしい", missLimit: 5, accelMax: 0.45, accelSec: 180, rotAccel: 1.1 }
+      };
+
+      // ---------- 設定（localStorageに保存） ----------
+      var settings = { pos: "center", vib: "off", sound: true, bpm: 120, difficulty: "normal", colorPreset: "rainbow", patternPreset: "standard", tintR: 0, tintG: 0, tintB: 0, hueShift: 0 };
+      (function loadSettings() {
+        try {
+          var raw = localStorage.getItem(LS_SETTINGS);
+          if (raw) { var s = JSON.parse(raw); for (var k in settings) if (s[k] !== undefined) settings[k] = s[k]; }
+        } catch (e) {}
+        if (!DIFFS[settings.difficulty]) settings.difficulty = "normal";
+        if (!COLOR_PRESETS[settings.colorPreset]) settings.colorPreset = "rainbow";
+      })();
+      function saveSettings() { try { localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); } catch (e) {} }
+
+      // ---------- 判定 ----------
+      var WIN = { perfect: 70, great: 130, good: 200 };
+      var TRAVEL_BEATS = 4;
+      var PHRASE_BEATS = 8; // 1節 = 8拍。末尾2拍は必ず休止（息継ぎ）
+
+      // お経リズム：短いモチーフ（節の中の打点。0〜5拍目のみ）を繰り返す
+      var MOTIFS = [
+        [0, 2, 4], [0, 1, 3, 4], [0, 2, 3, 5], [0, 4, 5],
+        [0, 1, 4, 5], [0, 2, 4, 5], [0, 3, 5], [0, 1, 3, 5]
+      ];
+      var MOTIFS_DENSE = [
+        [0, 1, 2, 3, 4, 5], [0, 1, 3, 4, 5], [0, 1, 2, 4, 5], [0, 2, 3, 4, 5]
+      ];
+      function pickMotif(dense) {
+        var src = dense ? MOTIFS_DENSE : MOTIFS;
+        return src[Math.floor(Math.random() * src.length)].slice();
+      }
+      function varyMotif(m) {
+        var v = m.slice();
+        if (v.length >= 5) { v.splice(1 + Math.floor(Math.random() * (v.length - 2)), 1); return v; }
+        var candidates = [1, 2, 3, 4, 5].filter(function (b) { return v.indexOf(b) < 0; });
+        if (candidates.length && Math.random() < 0.75) v.push(candidates[Math.floor(Math.random() * candidates.length)]);
+        else if (v.length > 2) v.splice(1, 1);
+        return v.sort(function (a, b) { return a - b; });
+      }
+
+      // ---------- ゲーム状態 ----------
+      var S = null;
+      function newState() {
+        return {
+          playing: false, paused: false, over: false,
+          now: 0, lastScheduledBeat: 0, pulseCursor: 0, nextBeatTime: 0, beatIndex: 0,
+          notes: [], particles: [], beatRings: [], popups: [], shockwaves: [],
+          gateFlash: null, rot: 0,
+          score: 0, combo: 0, maxCombo: 0,
+          counts: { perfect: 0, great: 0, good: 0, miss: 0 },
+          startedAt: 0, overAt: 0, submitted: false,
+          // フレーズ生成
+          beatInPhrase: 0, phraseCount: 0, motif: pickMotif(false), motifPlay: 0, activeNotes: null,
+          noteSeq: 0, gameOverTimer: -1
+        };
+      }
+      S = newState();
+
+      function diff() { return DIFFS[settings.difficulty]; }
+      // 経過に応じた加速率 0..1（かんたんは常に0）
+      function accelK() {
+        var d = diff();
+        if (!d.accelMax || !S.playing) return 0;
+        return Math.min(1, (S.now / 1000) / d.accelSec);
+      }
+      function currentBpm() { return settings.bpm * (1 + diff().accelMax * accelK()); }
+      function intervalMs() { return 60000 / currentBpm(); }
+      function rotFactor() { return 1 + diff().rotAccel * accelK(); }
+      function inDenseSection() {
+        // 終盤の連打セクション：90秒以降は密な節が混ざり、150秒以降は中心になる
+        var sec = S.now / 1000;
+        if (settings.difficulty === "easy") return sec > 150 && (S.phraseCount % 3 === 0);
+        return sec > 90 && (sec > 150 || S.phraseCount % 2 === 0);
+      }
+      function refreshPhrasePattern() {
+        S.activeNotes = (S.motifPlay === 3) ? varyMotif(S.motif) : S.motif;
+      }
+      refreshPhrasePattern.call ? null : null;
+      S.activeNotes = S.motif;
+
+      var BONJI = [
+        { g: "ॐ", hue: 45 }, { g: "ह्रीः", hue: 335 }, { g: "हूं", hue: 265 },
+        { g: "ऐं", hue: 200 }, { g: "श्रीं", hue: 20 }, { g: "क्लीं", hue: 150 },
+        { g: "गं", hue: 100 }, { g: "क्रौं", hue: 290 }
+      ];
+      function edgeDist(ang) {
+        var c = Math.cos(ang), s = Math.sin(ang), d = Infinity;
+        if (c > 0.001) d = Math.min(d, (W - GEO.cx) / c);
+        if (c < -0.001) d = Math.min(d, GEO.cx / -c);
+        if (s > 0.001) d = Math.min(d, (H - GEO.cy) / s);
+        if (s < -0.001) d = Math.min(d, GEO.cy / -s);
+        return isFinite(d) ? d : 300;
+      }
+      var toastTimer = null;
+      function showPhraseToast(big, small) {
+        if (reducedMotion) return;
+        phraseBigEl.textContent = big; phraseSmallEl.textContent = small || "";
+        phraseToastEl.classList.add("show");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { phraseToastEl.classList.remove("show"); }, 1500);
+      }
+
+      // 拍グリッドを先読み：フレーズ単位でノーツを置く
+      function schedule() {
+        var horizon = S.now + intervalMs() * TRAVEL_BEATS + 60;
+        while (S.nextBeatTime <= horizon) {
+          var t = S.nextBeatTime;
+          var iv = intervalMs();
+          if (S.beatInPhrase === 0 && S.phraseCount > 0 && S.motifPlay === 0) {
+            // 新しい節の始まり（表示は実際の到達時刻あたりに出すため軽く通知）
+          }
+          if (S.activeNotes && S.activeNotes.indexOf(S.beatInPhrase) >= 0) {
+            var seed = BONJI[S.noteSeq % BONJI.length];
+            // 飛来方向は黄金角で巡らせる（唱える順に場が回る）＋少しだけ揺らぎ
+            var ang = (S.noteSeq * 2.39996) % (Math.PI * 2) + (Math.random() * 0.5 - 0.25);
+            S.notes.push({
+              hitTime: t, travel: iv * TRAVEL_BEATS, glyph: seed.g, hue: seed.hue,
+              angle: ang, startR: edgeDist(ang) + 42, judged: false, missed: false
+            });
+            S.noteSeq++;
+          }
+          S.beatRings.push({ t0: t });
+          S.lastScheduledBeat = t;
+          S.nextBeatTime = t + iv;
+          S.beatIndex++;
+          S.beatInPhrase++;
+          if (S.beatInPhrase >= PHRASE_BEATS) {
+            S.beatInPhrase = 0;
+            S.phraseCount++;
+            S.motifPlay++;
+            if (S.motifPlay >= 4) {
+              S.motifPlay = 0;
+              S.motif = pickMotif(inDenseSection());
+              if (S.playing && S.now > 1000) showPhraseToast(inDenseSection() ? "密 の 節" : "新 た な 節", S.motifPlay === 0 ? "同じリズムが4回くり返されます" : "");
+            }
+            S.activeNotes = (S.motifPlay === 3) ? varyMotif(S.motif) : S.motif;
+          }
+        }
+        while (S.beatRings.length && S.now - S.beatRings[0].t0 > intervalMs() * 2.2) S.beatRings.shift();
+      }
+
+      // ---------- サウンド ----------
+      var audioCtx = null;
+      function ensureAudio() {
+        if (!settings.sound) return;
+        if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audioCtx = null; } }
+        if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+      }
+      function blip(freq, dur, vol, type) {
+        if (!settings.sound || !audioCtx) return;
+        var t = audioCtx.currentTime;
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = type || "sine"; o.frequency.value = freq;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol, t + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(t); o.stop(t + dur + 0.05);
+      }
+      function playJudge(kind) {
+        if (kind === "perfect") { blip(880, 0.22, 0.20); blip(1318, 0.3, 0.10); }
+        else if (kind === "great") blip(660, 0.18, 0.16);
+        else if (kind === "good") blip(520, 0.14, 0.13);
+        else if (kind === "miss") blip(150, 0.2, 0.10, "triangle");
+      }
+      function vibrateHit() { if (settings.vib === "hit" && navigator.vibrate) navigator.vibrate(15); }
+
+      // ---------- 判定 ----------
+      function addPopup(text, sub, color) {
+        S.popups.push({ text: text, sub: sub || "", color: color, t0: S.now });
+        if (S.popups.length > 3) S.popups.shift();
+      }
+      function burst(x, y, hue, n, power) {
+        for (var i = 0; i < n; i++) {
+          var a = Math.random() * Math.PI * 2, sp = (0.04 + Math.random() * 0.16) * (power || 1);
+          S.particles.push({ x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, t0: S.now, life: 380 + Math.random() * 320, hue: (hue + (Math.random() * 40 - 20) + 360) % 360, r: 2 + Math.random() * 3.5 });
+        }
+      }
+      var GEO = { cx: 0, cy: 0, gateR: 34, outerR: 200 };
+      var mandalaLayers = [];
+      var MANDALA_R = 100;
+      var bgAngle = 0;
+      function judge() {
+        if (!S.playing || S.paused || S.over) return;
+        ensureAudio();
+        var best = null, bestAbs = Infinity, bestDt = 0;
+        for (var i = 0; i < S.notes.length; i++) {
+          var n = S.notes[i];
+          if (n.judged || n.missed) continue;
+          var dt = S.now - n.hitTime, ad = Math.abs(dt);
+          if (ad < bestAbs) { bestAbs = ad; best = n; bestDt = dt; }
+        }
+        if (!best || bestAbs > WIN.good) return; // 空振りはコンボを壊さない
+        best.judged = true;
+        var kind, label, base, color;
+        if (bestAbs <= WIN.perfect) { kind = "perfect"; label = "PERFECT"; base = 1000; color = "#ffd84d"; }
+        else if (bestAbs <= WIN.great) { kind = "great"; label = "GREAT"; base = 600; color = "#37e0c8"; }
+        else { kind = "good"; label = "GOOD"; base = 300; color = "#8ecbff"; }
+        S.combo++;
+        if (S.combo > S.maxCombo) S.maxCombo = S.combo;
+        S.counts[kind]++;
+        S.score += base + Math.min(S.combo, 100) * 10;
+        var sign = bestDt === 0 ? "" : (bestDt < 0 ? "-" : "+");
+        addPopup(label, sign + Math.abs(Math.round(bestDt)) + "ms", color);
+        S.gateFlash = { t0: S.now, color: color };
+        // 衝撃波：中心から放射状に広がる輪
+        S.shockwaves.push({ t0: S.now, hue: best.hue, color: color, strength: kind === "perfect" ? 1.35 : kind === "great" ? 1 : 0.75 });
+        if (S.shockwaves.length > 6) S.shockwaves.shift();
+        burst(GEO.cx, GEO.cy, best.hue, kind === "perfect" ? 26 : 16, kind === "perfect" ? 1.3 : 1);
+        playJudge(kind);
+        vibrateHit();
+        updateHUD(true);
+      }
+      function processMisses() {
+        for (var i = 0; i < S.notes.length; i++) {
+          var n = S.notes[i];
+          if (!n.judged && !n.missed && S.now - n.hitTime > WIN.good) {
+            n.missed = true;
+            S.counts.miss++;
+            addPopup("MISS", "", "#ff7a7a");
+            S.combo = 0;
+            S.gateFlash = { t0: S.now, color: "#ff5d5d" };
+            burst(GEO.cx, GEO.cy, 0, 8, 0.55);
+            playJudge("miss");
+            updateHUD(true);
+            var lim = diff().missLimit;
+            if (isFinite(lim) && S.counts.miss >= lim && S.gameOverTimer < 0 && !S.over) {
+              S.gameOverTimer = S.now + 650; // 最後のMISS表示を見せてから終了画面へ
+            }
+          }
+        }
+        S.notes = S.notes.filter(function (n2) { return S.now - n2.hitTime < 420; });
+      }
+
+      // ---------- HUD ----------
+      var lastScoreShown = -1, lastComboShown = -1, lastLifeShown = "";
+      function updateHUD(bump) {
+        if (S.score !== lastScoreShown) { scoreEl.textContent = S.score.toLocaleString("ja-JP"); lastScoreShown = S.score; }
+        var bpmNow = Math.round(currentBpm());
+        var sub = diff().label + " ・ " + bpmNow + " BPM";
+        if (subInfoEl.textContent !== sub) subInfoEl.textContent = sub;
+        var lim = diff().missLimit;
+        var lifeTxt = isFinite(lim) ? (S.counts.miss + " / " + lim) : (S.counts.miss + " ・ ∞");
+        if (lifeTxt !== lastLifeShown) {
+          lifeEl.textContent = lifeTxt; lastLifeShown = lifeTxt;
+          lifeEl.classList.toggle("low", isFinite(lim) && lim - S.counts.miss <= 2);
+        }
+        if (S.combo !== lastComboShown) {
+          comboEl.textContent = S.combo >= 2 ? String(S.combo) : "";
+          comboLabelEl.textContent = S.combo >= 2 ? "COMBO" : "";
+          lastComboShown = S.combo;
+          if (bump && S.combo >= 2) { comboEl.classList.remove("bump"); void comboEl.offsetWidth; comboEl.classList.add("bump"); }
+        }
+      }
+
+      // ---------- 描画 ----------
+      var W = 0, H = 0, DPR = 1;
+      function resize() {
+        DPR = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth; H = window.innerHeight;
+        canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
+        GEO.cx = W / 2;
+        GEO.cy = Math.round(H * 0.38);
+        GEO.gateR = Math.max(30, Math.min(40, W * 0.055));
+        GEO.outerR = Math.min(W * 0.46, H * 0.315, GEO.cy - 56);
+        if (GEO.outerR < GEO.gateR * 2.4) GEO.outerR = GEO.gateR * 2.4;
+        buildMandala();
+      }
+      window.addEventListener("resize", resize);
+
+      function petalPath(c, r0, r1, w) {
+        c.beginPath(); c.moveTo(r0, 0);
+        c.quadraticCurveTo((r0 + r1) / 2, w, r1, 0);
+        c.quadraticCurveTo((r0 + r1) / 2, -w, r0, 0);
+        c.closePath();
+      }
+      function hslToRgb(h, s, l) {
+        h = ((h % 360) + 360) % 360 / 360; s /= 100; l /= 100;
+        var r, g, b;
+        if (s === 0) { r = g = b = l; }
+        else {
+          var q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+          function f(t) { if (t < 0) t += 1; if (t > 1) t -= 1; if (t < 1 / 6) return p + (q - p) * 6 * t; if (t < 1 / 2) return q; if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6; return p; }
+          r = f(h + 1 / 3); g = f(h); b = f(h - 1 / 3);
+        }
+        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+      }
+      // 層の色：プリセット色相＋色相シフト＋RGBティントを寄せる
+      function layerColor(layerIdx, alpha) {
+        var preset = COLOR_PRESETS[settings.colorPreset] || COLOR_PRESETS.rainbow;
+        var dark = PAL ? PAL.lighter : true;
+        var h = preset.hues[layerIdx % preset.hues.length] + settings.hueShift;
+        var s = preset.sat !== null ? preset.sat : (dark ? 92 : 78);
+        var l = dark ? 64 : 44;
+        var rgb = hslToRgb(h, s, l);
+        rgb[0] = Math.max(0, Math.min(255, rgb[0] + settings.tintR * 1.6));
+        rgb[1] = Math.max(0, Math.min(255, rgb[1] + settings.tintG * 1.6));
+        rgb[2] = Math.max(0, Math.min(255, rgb[2] + settings.tintB * 1.6));
+        return "rgba(" + Math.round(rgb[0]) + "," + Math.round(rgb[1]) + "," + Math.round(rgb[2]) + "," + alpha + ")";
+      }
+      function buildMandala() {
+        mandalaLayers = [];
+        if (!W || !H || !PAL) return;
+        var R = Math.max(130, Math.min(W, H) * 0.56);
+        MANDALA_R = R;
+        var pat = settings.patternPreset;
+        function mk(speed) {
+          var cv = document.createElement("canvas");
+          var s = Math.ceil(R * 2);
+          cv.width = s * DPR; cv.height = s * DPR;
+          var c = cv.getContext("2d");
+          c.scale(DPR, DPR); c.translate(R, R);
+          mandalaLayers.push({ cv: cv, speed: speed });
+          return c;
+        }
+        var i, a;
+        var showGeo = pat !== "lotus";
+        var showPetals = pat !== "geo" && pat !== "jewel";
+        var showJewels = true;
+        // 層0：外周の輪と宝珠ドット
+        var c0 = mk(0.55);
+        c0.strokeStyle = layerColor(0, 0.55); c0.lineWidth = 2.2;
+        c0.beginPath(); c0.arc(0, 0, R * 0.985, 0, Math.PI * 2); c0.stroke();
+        c0.lineWidth = 1.2; c0.beginPath(); c0.arc(0, 0, R * 0.925, 0, Math.PI * 2); c0.stroke();
+        if (showJewels) {
+          for (i = 0; i < 60; i++) {
+            a = (i / 60) * Math.PI * 2;
+            c0.beginPath(); c0.arc(Math.cos(a) * R * 0.955, Math.sin(a) * R * 0.955, i % 2 ? 2.4 : 4.2, 0, Math.PI * 2);
+            c0.fillStyle = layerColor(i % 2 ? 0 : 4, 0.85); c0.fill();
+          }
+          for (i = 0; i < 12; i++) {
+            a = (i / 12) * Math.PI * 2;
+            c0.beginPath(); c0.arc(Math.cos(a) * R * 0.875, Math.sin(a) * R * 0.875, R * 0.016, 0, Math.PI * 2);
+            c0.strokeStyle = layerColor(0, 0.6); c0.lineWidth = 1.6; c0.stroke();
+          }
+        }
+        if (pat === "jewel") {
+          // 宝珠：同心の輪を増やす
+          [0.80, 0.68, 0.56].forEach(function (rr, idx) {
+            c0.beginPath(); c0.arc(0, 0, R * rr, 0, Math.PI * 2);
+            c0.strokeStyle = layerColor(idx % 5, 0.4); c0.lineWidth = 1.4; c0.stroke();
+          });
+          for (i = 0; i < 24; i++) {
+            a = (i / 24) * Math.PI * 2;
+            c0.beginPath(); c0.arc(Math.cos(a) * R * 0.74, Math.sin(a) * R * 0.74, R * 0.02, 0, Math.PI * 2);
+            c0.fillStyle = layerColor(2, 0.8); c0.fill();
+          }
+        }
+        // 層1：蓮弁（大）
+        var c1 = mk(-0.38);
+        if (showPetals) {
+          var n1 = pat === "dense" ? 32 : pat === "lotus" ? 28 : 24;
+          for (i = 0; i < n1; i++) {
+            c1.save(); c1.rotate((i / n1) * Math.PI * 2);
+            petalPath(c1, R * 0.60, R * 0.905, R * 0.082);
+            c1.fillStyle = layerColor(1, 0.38); c1.fill();
+            c1.strokeStyle = layerColor(1, 0.85); c1.lineWidth = 1.4; c1.stroke();
+            c1.restore();
+          }
+        }
+        c1.strokeStyle = layerColor(1, 0.6); c1.lineWidth = 1.6;
+        c1.beginPath(); c1.arc(0, 0, R * 0.60, 0, Math.PI * 2); c1.stroke();
+        // 層2：幾何の菱形
+        var c2 = mk(0.85);
+        if (showGeo) {
+          for (i = 0; i < 12; i++) {
+            c2.save(); c2.rotate((i / 12) * Math.PI * 2);
+            c2.beginPath();
+            c2.moveTo(R * 0.50, 0); c2.lineTo(R * 0.63, R * 0.075); c2.lineTo(R * 0.78, 0); c2.lineTo(R * 0.63, -R * 0.075);
+            c2.closePath();
+            c2.fillStyle = layerColor(2, 0.5); c2.fill();
+            c2.strokeStyle = layerColor(2, 0.9); c2.lineWidth = 1.3; c2.stroke();
+            c2.restore();
+            a = ((i + 0.5) / 12) * Math.PI * 2;
+            c2.beginPath(); c2.arc(Math.cos(a) * R * 0.64, Math.sin(a) * R * 0.64, R * 0.02, 0, Math.PI * 2);
+            c2.fillStyle = layerColor(2, 0.8); c2.fill();
+          }
+        }
+        c2.strokeStyle = layerColor(2, 0.5); c2.lineWidth = 1.2;
+        c2.beginPath(); c2.arc(0, 0, R * 0.50, 0, Math.PI * 2); c2.stroke();
+        // 層3：蓮弁（中）
+        var c3 = mk(-1.2);
+        if (showPetals) {
+          var n3 = pat === "dense" ? 24 : pat === "lotus" ? 20 : 16;
+          for (i = 0; i < n3; i++) {
+            c3.save(); c3.rotate((i / n3) * Math.PI * 2);
+            petalPath(c3, R * 0.29, R * 0.545, R * 0.068);
+            c3.fillStyle = layerColor(3, 0.42); c3.fill();
+            c3.strokeStyle = layerColor(3, 0.9); c3.lineWidth = 1.4; c3.stroke();
+            c3.restore();
+          }
+          if (pat === "dense" || pat === "lotus") {
+            for (i = 0; i < n3; i++) {
+              c3.save(); c3.rotate(((i + 0.5) / n3) * Math.PI * 2);
+              petalPath(c3, R * 0.33, R * 0.50, R * 0.045);
+              c3.strokeStyle = layerColor(3, 0.55); c3.lineWidth = 1.1; c3.stroke();
+              c3.restore();
+            }
+          }
+        }
+        c3.strokeStyle = layerColor(3, 0.65); c3.lineWidth = 1.6;
+        c3.beginPath(); c3.arc(0, 0, R * 0.29, 0, Math.PI * 2); c3.stroke();
+        // 層4：芯
+        var c4 = mk(1.6);
+        if (pat !== "jewel") {
+          for (i = 0; i < 8; i++) {
+            c4.save(); c4.rotate((i / 8) * Math.PI * 2);
+            petalPath(c4, R * 0.055, R * 0.285, R * 0.072);
+            c4.fillStyle = layerColor(4, 0.5); c4.fill();
+            c4.strokeStyle = layerColor(4, 0.9); c4.lineWidth = 1.4; c4.stroke();
+            c4.restore();
+          }
+        }
+        c4.beginPath(); c4.arc(0, 0, R * 0.115, 0, Math.PI * 2);
+        c4.strokeStyle = layerColor(3, 0.8); c4.lineWidth = 1.6; c4.stroke();
+        c4.beginPath(); c4.arc(0, 0, R * 0.052, 0, Math.PI * 2);
+        c4.fillStyle = layerColor(4, 0.9); c4.fill();
+      }
+      if (lightScheme.addEventListener) lightScheme.addEventListener("change", function () { pickPalette(); buildMandala(); });
+
+      function drawMandala(now, pulse) {
+        if (!mandalaLayers.length) return;
+        ctx.save();
+        if (PAL.lighter) ctx.globalCompositeOperation = "lighter";
+        var sc = reducedMotion ? 1 : 1 + 0.02 * pulse;
+        for (var i = 0; i < mandalaLayers.length; i++) {
+          var layer = mandalaLayers[i];
+          ctx.save();
+          ctx.translate(GEO.cx, GEO.cy);
+          ctx.rotate(bgAngle * layer.speed * rotFactor() + i * 0.35);
+          ctx.scale(sc, sc);
+          ctx.globalAlpha = PAL.mandalaAlpha;
+          ctx.drawImage(layer.cv, -MANDALA_R, -MANDALA_R, MANDALA_R * 2, MANDALA_R * 2);
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+      function notePos(n, now) {
+        var p = 1 - (n.hitTime - now) / n.travel;
+        var r = n.startR * (1 - p);
+        return { p: p, r: r, x: GEO.cx + Math.cos(n.angle) * r, y: GEO.cy + Math.sin(n.angle) * r };
+      }
+      function draw(now) {
+        var iv = intervalMs();
+        var phase = ((now - S.pulseCursor) % iv + iv) % iv / iv;
+        var pulse = Math.exp(-phase * 4.2);
+        var hueBase = (205 + now * 0.012 + S.combo * 1.6 + settings.hueShift) % 360;
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        var g = ctx.createRadialGradient(GEO.cx, GEO.cy, 10, GEO.cx, GEO.cy, Math.max(W, H) * 0.75);
+        g.addColorStop(0, PAL.bg); g.addColorStop(1, PAL.bgDeep);
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        var sc = reducedMotion ? 1 : 1 + 0.016 * pulse;
+        ctx.translate(GEO.cx, GEO.cy); ctx.scale(sc, sc); ctx.translate(-GEO.cx, -GEO.cy);
+        drawMandala(now, pulse);
+        for (var bi = 0; bi < S.beatRings.length; bi++) {
+          var br = S.beatRings[bi], age = (now - br.t0) / iv;
+          if (age < 0 || age > 2.2) continue;
+          var rr2 = GEO.gateR + age * GEO.outerR * 0.55;
+          ctx.beginPath(); ctx.arc(GEO.cx, GEO.cy, rr2, 0, Math.PI * 2);
+          ctx.strokeStyle = "hsla(" + hueBase + ", 95%, 70%, " + (0.20 * (1 - age / 2.2)) + ")";
+          ctx.lineWidth = 2; ctx.stroke();
+        }
+        // 衝撃波リング（ヒットごと）
+        S.shockwaves = S.shockwaves.filter(function (sw) { return now - sw.t0 < 700; });
+        for (var si = 0; si < S.shockwaves.length; si++) {
+          var sw = S.shockwaves[si], sk = (now - sw.t0) / 700;
+          var ease = 1 - Math.pow(1 - sk, 3);
+          var sR = GEO.gateR + ease * GEO.outerR * 1.55 * sw.strength;
+          ctx.beginPath(); ctx.arc(GEO.cx, GEO.cy, sR, 0, Math.PI * 2);
+          ctx.strokeStyle = sw.color; ctx.globalAlpha = 0.8 * (1 - sk);
+          ctx.lineWidth = 4.5 * (1 - sk) + 0.6; ctx.stroke();
+          ctx.beginPath(); ctx.arc(GEO.cx, GEO.cy, sR * 0.82, 0, Math.PI * 2);
+          ctx.strokeStyle = "hsla(" + sw.hue + ", 100%, 72%, 1)"; ctx.globalAlpha = 0.45 * (1 - sk);
+          ctx.lineWidth = 2; ctx.stroke();
+          ctx.globalAlpha = 1;
+          // 放射状の光条
+          if (!reducedMotion) {
+            ctx.save(); ctx.translate(GEO.cx, GEO.cy);
+            ctx.strokeStyle = "hsla(" + sw.hue + ", 100%, 74%, 1)";
+            ctx.globalAlpha = 0.35 * (1 - sk); ctx.lineWidth = 1.6;
+            for (var ray = 0; ray < 12; ray++) {
+              var ra = ray / 12 * Math.PI * 2 + sw.t0 * 0.001;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(ra) * sR * 0.92, Math.sin(ra) * sR * 0.92);
+              ctx.lineTo(Math.cos(ra) * sR * 1.10, Math.sin(ra) * sR * 1.10);
+              ctx.stroke();
+            }
+            ctx.restore(); ctx.globalAlpha = 1;
+          }
+        }
+        var sorted = S.notes.slice().sort(function (a, b) { return b.hitTime - a.hitTime; });
+        for (var i = 0; i < sorted.length; i++) {
+          var n = sorted[i];
+          if (n.judged) continue;
+          var pos = notePos(n, now);
+          if (pos.p < -0.05 || pos.p > 1.2) continue;
+          var ca = Math.cos(n.angle), sa = Math.sin(n.angle);
+          ctx.save();
+          ctx.beginPath(); ctx.moveTo(GEO.cx, GEO.cy);
+          ctx.lineTo(GEO.cx + ca * n.startR, GEO.cy + sa * n.startR);
+          ctx.strokeStyle = "hsla(" + n.hue + ", 95%, 68%, " + (n.missed ? 0.03 : 0.10) + ")";
+          ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          for (var tr = 3; tr >= 1; tr--) {
+            var gr = pos.r + tr * 34;
+            if (gr > n.startR) continue;
+            ctx.font = "700 " + (20 - tr * 2) + "px 'Noto Serif Devanagari', 'M PLUS Rounded 1c', serif";
+            ctx.fillStyle = "hsla(" + n.hue + ", 100%, 70%, " + (0.05 + (3 - tr) * 0.045) + ")";
+            ctx.fillText(n.glyph, GEO.cx + ca * gr, GEO.cy + sa * gr);
+          }
+          var pk = Math.max(0, Math.min(1, pos.p));
+          var fontPx = n.missed ? 24 : 25 + 13 * pk;
+          var discR = fontPx * 0.82;
+          ctx.beginPath(); ctx.arc(pos.x, pos.y, discR, 0, Math.PI * 2);
+          ctx.fillStyle = n.missed ? "rgba(120,120,130,0.25)" : "hsla(" + n.hue + ", 95%, 58%, " + (0.16 + 0.12 * pk) + ")";
+          ctx.fill();
+          ctx.strokeStyle = n.missed ? "rgba(150,150,160,0.4)" : "hsla(" + n.hue + ", 100%, 70%, 0.8)";
+          ctx.lineWidth = 1.6; ctx.stroke();
+          ctx.font = "700 " + fontPx + "px 'Noto Serif Devanagari', 'M PLUS Rounded 1c', serif";
+          ctx.shadowColor = "hsla(" + n.hue + ", 100%, 65%, 0.95)";
+          ctx.shadowBlur = n.missed ? 0 : 16;
+          ctx.fillStyle = n.missed ? "rgba(170,170,180,0.55)" : (PAL.lighter ? "#ffffff" : "hsl(" + n.hue + ", 85%, 34%)");
+          ctx.fillText(n.glyph, pos.x, pos.y + fontPx * 0.04);
+          ctx.restore();
+        }
+        var flashAge = S.gateFlash ? (now - S.gateFlash.t0) / 320 : 9;
+        ctx.save(); ctx.translate(GEO.cx, GEO.cy);
+        var gatePulse = 1 + (reducedMotion ? 0 : 0.05 * pulse);
+        ctx.scale(gatePulse, gatePulse);
+        if (flashAge < 1) {
+          ctx.beginPath(); ctx.arc(0, 0, GEO.gateR + flashAge * 46, 0, Math.PI * 2);
+          ctx.strokeStyle = S.gateFlash.color; ctx.globalAlpha = 0.75 * (1 - flashAge);
+          ctx.lineWidth = 3.5; ctx.stroke(); ctx.globalAlpha = 1;
+        }
+        ctx.beginPath(); ctx.arc(0, 0, GEO.gateR, 0, Math.PI * 2);
+        ctx.strokeStyle = PAL.gate; ctx.lineWidth = 3.4;
+        ctx.shadowColor = "hsla(" + hueBase + ", 100%, 70%, 0.95)"; ctx.shadowBlur = 14 + 16 * pulse; ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 0, GEO.gateR * 0.66, 0, Math.PI * 2);
+        ctx.strokeStyle = "hsla(" + ((hueBase + 120) % 360) + ", 100%, 68%, 0.85)";
+        ctx.lineWidth = 2; ctx.shadowBlur = 8; ctx.stroke(); ctx.shadowBlur = 0;
+        ctx.beginPath(); ctx.arc(0, 0, 4.5 + 2.5 * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = PAL.gate; ctx.fill();
+        ctx.restore();
+        S.particles = S.particles.filter(function (pt) { return now - pt.t0 < pt.life; });
+        for (var pi = 0; pi < S.particles.length; pi++) {
+          var pt = S.particles[pi], age2 = (now - pt.t0) / 1000;
+          var lifeK = 1 - (now - pt.t0) / pt.life;
+          ctx.beginPath();
+          ctx.arc(pt.x + pt.vx * age2 * 1000 * 0.06 * 16, pt.y + pt.vy * age2 * 1000 * 0.06 * 16, pt.r * lifeK + 0.4, 0, Math.PI * 2);
+          ctx.fillStyle = "hsla(" + pt.hue + ", 100%, 70%, " + (0.85 * lifeK) + ")";
+          ctx.fill();
+        }
+        S.popups = S.popups.filter(function (pp2) { return now - pp2.t0 < 720; });
+        for (var qi = 0; qi < S.popups.length; qi++) {
+          var pop = S.popups[qi], pa = (now - pop.t0) / 720;
+          var popScale = pa < 0.18 ? 0.6 + (pa / 0.18) * 0.5 : 1.1 - (pa - 0.18) * 0.12;
+          ctx.save();
+          ctx.translate(GEO.cx, GEO.cy - GEO.gateR - 44 - qi * 6);
+          ctx.scale(popScale, popScale);
+          ctx.globalAlpha = pa > 0.6 ? 1 - (pa - 0.6) / 0.4 : 1;
+          ctx.font = "800 27px 'Baloo 2', 'M PLUS Rounded 1c', sans-serif";
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.fillStyle = pop.color; ctx.shadowColor = pop.color; ctx.shadowBlur = 12;
+          ctx.fillText(pop.text, 0, 0);
+          if (pop.sub) {
+            ctx.font = "700 13px 'M PLUS Rounded 1c', sans-serif"; ctx.shadowBlur = 0;
+            ctx.fillStyle = PAL.text; ctx.globalAlpha *= 0.85;
+            ctx.fillText(pop.sub, 0, 24);
+          }
+          ctx.restore();
+        }
+        frameFlashEl.style.opacity = String((reducedMotion ? 0.35 : 0.55) * pulse);
+        var pre = phase > 0.68 ? (phase - 0.68) / 0.32 : 0;
+        edgeGlowEl.style.opacity = String(reducedMotion ? pre * 0.35 : pre * 0.85);
+        edgeGlowEl.style.boxShadow = "inset 0 0 110px 30px hsla(" + hueBase + ", 95%, 62%, 0.55), inset 0 0 46px 6px hsla(" + ((hueBase + 140) % 360) + ", 95%, 65%, 0.5)";
+      }
+
+      // ---------- メインループ ----------
+      var lastTs = null;
+      function frame(ts) {
+        requestAnimationFrame(frame);
+        if (lastTs === null) lastTs = ts;
+        var dt = Math.min(ts - lastTs, 100);
+        lastTs = ts;
+        bgAngle += dt * 0.00012 * (S.playing && !S.paused ? rotFactor() : 1);
+        if (S.playing && !S.paused && !S.over) {
+          S.now += dt;
+          var ivNow = intervalMs();
+          while (S.pulseCursor + ivNow <= S.now) S.pulseCursor += ivNow;
+          schedule();
+          processMisses();
+          updateHUD(false);
+          if (S.gameOverTimer >= 0 && S.now >= S.gameOverTimer) { S.gameOverTimer = -1; gameOver("miss"); }
+        }
+        draw(S.now);
+      }
+      requestAnimationFrame(frame);
+      resize();
+
+      // ---------- 開始／終了 ----------
+      var startOverlay = document.getElementById("startOverlay");
+      var pauseOverlay = document.getElementById("pauseOverlay");
+      var settingsOverlay = document.getElementById("settingsOverlay");
+      var resultOverlay = document.getElementById("resultOverlay");
+      var rankingOverlay = document.getElementById("rankingOverlay");
+
+      function startGame() {
+        S = newState();
+        S.playing = true;
+        S.now = 0;
+        var iv = intervalMs();
+        S.lastScheduledBeat = -iv;
+        S.pulseCursor = 0;
+        S.nextBeatTime = iv * (TRAVEL_BEATS + 1);
+        S.startedAt = performance.now();
+        lastScoreShown = -1; lastComboShown = -1; lastLifeShown = "";
+        scoreEl.textContent = "0"; comboEl.textContent = ""; comboLabelEl.textContent = "";
+        btnHintEl.style.display = "";
+        ensureAudio();
+        startOverlay.hidden = true; pauseOverlay.hidden = true; resultOverlay.hidden = true; rankingOverlay.hidden = true;
+        updateHUD(false);
+        showPhraseToast("唱 え 始 め", "同じ節が4回くり返されます");
+      }
+      function pauseGame() {
+        if (!S.playing || S.paused || S.over) return;
+        S.paused = true; fillStats(); pauseOverlay.hidden = false;
+      }
+      function resumeGame() { S.paused = false; pauseOverlay.hidden = true; ensureAudio(); }
+      function accuracy() {
+        var c = S.counts, total = c.perfect + c.great + c.good + c.miss;
+        return total ? Math.round((c.perfect * 1 + c.great * 0.7 + c.good * 0.4) / total * 100) + "%" : "—";
+      }
+      function totalNotes() { var c = S.counts; return c.perfect + c.great + c.good + c.miss; }
+      function fillStats() {
+        document.getElementById("stScore").textContent = S.score.toLocaleString("ja-JP");
+        document.getElementById("stCombo").textContent = S.maxCombo;
+        document.getElementById("stNotes").textContent = totalNotes();
+        document.getElementById("stAcc").textContent = accuracy();
+        document.getElementById("stPerfect").textContent = S.counts.perfect;
+        document.getElementById("stGreat").textContent = S.counts.great;
+        document.getElementById("stGood").textContent = S.counts.good;
+        document.getElementById("stMiss").textContent = S.counts.miss;
+      }
+      function gameOver(reason) {
+        if (S.over) return;
+        S.over = true; S.playing = false; S.overAt = performance.now();
+        document.getElementById("resultTitle").textContent = reason === "miss" ? "終了 — ミスの上限" : "終了";
+        document.getElementById("resultReason").textContent =
+          (reason === "miss" ? diff().label + "：ミス " + S.counts.miss + " 回で終了しました。" : diff().label + "：ここまでの記録です。") +
+          " 経過 " + Math.round(S.now / 1000) + " 秒 ・ 最終テンポ " + Math.round(currentBpm()) + " BPM";
+        document.getElementById("rsScore").textContent = S.score.toLocaleString("ja-JP");
+        document.getElementById("rsCombo").textContent = S.maxCombo;
+        document.getElementById("rsNotes").textContent = totalNotes();
+        document.getElementById("rsAcc").textContent = accuracy();
+        document.getElementById("rsPerfect").textContent = S.counts.perfect;
+        document.getElementById("rsGreat").textContent = S.counts.great;
+        document.getElementById("rsGood").textContent = S.counts.good;
+        document.getElementById("rsMiss").textContent = S.counts.miss;
+        document.getElementById("resultRankTitle").textContent = "ランキング（" + diff().label + "）";
+        var hn = "";
+        try { hn = localStorage.getItem(LS_HN) || ""; } catch (e) {}
+        document.getElementById("hnInput").value = hn;
+        document.getElementById("submitMsg").textContent = "";
+        document.getElementById("submitMsg").className = "rankMsg";
+        document.getElementById("submitScoreBtn").disabled = false;
+        pauseOverlay.hidden = true;
+        resultOverlay.hidden = false;
+        refreshResultRanking();
+      }
+      function refreshResultRanking() {
+        var note = document.getElementById("resultRankNote");
+        note.textContent = rankingModeLabel() + " ・ 上位50件";
+        fetchRanking(settings.difficulty).then(function (rows) {
+          renderRankList(document.getElementById("resultRankList"), rows, null, null);
+        });
+      }
+      document.getElementById("submitScoreBtn").addEventListener("click", function () {
+        if (S.submitted) return;
+        var input = document.getElementById("hnInput");
+        var name = (input.value || "").trim().slice(0, 16);
+        var msg = document.getElementById("submitMsg");
+        if (!name) { msg.textContent = "ハンドルネームを入力してください。"; input.focus(); return; }
+        try { localStorage.setItem(LS_HN, name); } catch (e) {}
+        S.submitted = true;
+        var btn = document.getElementById("submitScoreBtn");
+        btn.disabled = true; msg.textContent = "登録しています…";
+        var finalScore = S.score, finalDiff = settings.difficulty;
+        submitScore(name, finalScore, finalDiff).then(function (mode) {
+          msg.textContent = mode === "firebase" ? "ネットランキングに登録しました。" : "この端末のランキングに登録しました。";
+          msg.className = "rankMsg ok"; btn.textContent = "登録済み";
+          fetchRanking(finalDiff).then(function (rows) {
+            renderRankList(document.getElementById("resultRankList"), rows, name, finalScore);
+          });
+        }).catch(function () {
+          msg.textContent = "登録に失敗しました。もう一度お試しください。";
+          S.submitted = false; btn.disabled = false;
+        });
+      });
+
+      document.getElementById("startBtn").addEventListener("click", startGame);
+      document.getElementById("resumeBtn").addEventListener("click", resumeGame);
+      document.getElementById("restartBtn").addEventListener("click", function () { pauseOverlay.hidden = true; S.paused = false; startGame(); });
+      document.getElementById("againBtn").addEventListener("click", function () { resultOverlay.hidden = true; startGame(); });
+      document.getElementById("toTitleBtn").addEventListener("click", function () { resultOverlay.hidden = true; startOverlay.hidden = false; });
+      document.getElementById("quitBtn").addEventListener("click", function () { pauseOverlay.hidden = true; S.paused = false; gameOver("quit"); });
+      document.getElementById("pauseBtn").addEventListener("click", function () {
+        if (S.over) return;
+        if (S.paused) resumeGame(); else if (S.playing) pauseGame();
+      });
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden && S.playing && !S.paused && !S.over) pauseGame();
+      });
+
+      // ---------- ランキング画面 ----------
+      var rankTabDiff = settings.difficulty;
+      function openRanking() {
+        rankTabDiff = settings.difficulty;
+        refreshRankTabs(); loadRankingView();
+        rankingOverlay.hidden = false;
+      }
+      function refreshRankTabs() {
+        var btns = document.querySelectorAll("#rankTabs button");
+        for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", btns[i].getAttribute("data-val") === rankTabDiff ? "true" : "false");
+      }
+      function loadRankingView() {
+        document.getElementById("rankNote").textContent = rankingModeLabel() + " ・ 難易度ごとに上位50件";
+        var ol = document.getElementById("rankList");
+        ol.innerHTML = '<li><span class="nm" style="color:var(--ink-dim)">読み込み中…</span></li>';
+        fetchRanking(rankTabDiff).then(function (rows) { renderRankList(ol, rows, null, null); });
+      }
+      document.getElementById("rankTabs").addEventListener("click", function (e) {
+        var b = e.target.closest("button"); if (!b) return;
+        rankTabDiff = b.getAttribute("data-val"); refreshRankTabs(); loadRankingView();
+      });
+      document.getElementById("startRankingBtn").addEventListener("click", function () { startOverlay.hidden = true; openRanking(); });
+      document.getElementById("rankingCloseBtn").addEventListener("click", function () {
+        rankingOverlay.hidden = true;
+        if (!S.playing && !S.over) startOverlay.hidden = false;
+        else if (S.over) resultOverlay.hidden = false;
+      });
+
+      // ---------- ボタン入力 ----------
+      function pressButtonVisual() {
+        hitBtn.classList.add("pressed");
+        setTimeout(function () { hitBtn.classList.remove("pressed"); }, 110);
+      }
+      hitBtn.addEventListener("pointerdown", function (e) {
+        e.preventDefault();
+        pressButtonVisual();
+        if (S.playing && !S.paused && btnHintEl.style.display !== "none") {
+          setTimeout(function () { btnHintEl.style.display = "none"; }, 2500);
+        }
+        judge();
+      });
+      window.addEventListener("keydown", function (e) {
+        if (e.code === "Space" || e.code === "ArrowDown") {
+          if (!startOverlay.hidden || !settingsOverlay.hidden || !resultOverlay.hidden || !rankingOverlay.hidden) return;
+          e.preventDefault();
+          if (!e.repeat) { pressButtonVisual(); judge(); }
+        }
+      });
+      canvas.addEventListener("pointerdown", function (e) { e.preventDefault(); });
+
+      // ---------- 設定UI ----------
+      var settingsReturnTo = null;
+      function openSettings(from) {
+        settingsReturnTo = from;
+        settingsOverlay.hidden = false;
+        refreshSegs(); refreshSliders();
+      }
+      function closeSettings() {
+        settingsOverlay.hidden = true;
+        if (settingsReturnTo === "pause" && S.playing) { fillStats(); pauseOverlay.hidden = false; }
+        if (settingsReturnTo === "result") resultOverlay.hidden = false;
+        settingsReturnTo = null;
+      }
+      document.getElementById("settingsBtn").addEventListener("click", function () {
+        if (S.over) { resultOverlay.hidden = true; openSettings("result"); return; }
+        if (S.playing && !S.paused) pauseGame();
+        openSettings(S.playing ? "pause" : "start-hidden");
+        if (!S.playing) startOverlay.hidden = true;
+      });
+      document.getElementById("startSettingsBtn").addEventListener("click", function () { startOverlay.hidden = true; openSettings("start"); });
+      document.getElementById("pauseSettingsBtn").addEventListener("click", function () { pauseOverlay.hidden = true; openSettings("pause"); });
+      document.getElementById("settingsCloseBtn").addEventListener("click", function () {
+        var back = settingsReturnTo;
+        closeSettings();
+        if (back === "start" || back === "start-hidden") startOverlay.hidden = false;
+      });
+
+      // カラープリセットのスウォッチを生成
+      (function buildSwatches() {
+        var wrap = document.getElementById("colorSwatches");
+        Object.keys(COLOR_PRESETS).forEach(function (key) {
+          var p = COLOR_PRESETS[key];
+          var b = document.createElement("button");
+          b.className = "swatch"; b.setAttribute("data-val", key);
+          var dots = document.createElement("span"); dots.className = "dots";
+          [0, 1, 2, 3, 4].forEach(function (idx) {
+            var dot = document.createElement("i");
+            dot.style.background = "hsl(" + p.hues[idx] + ",85%,58%)";
+            if (p.sat !== null) dot.style.background = "hsl(" + p.hues[idx] + "," + p.sat + "%,58%)";
+            dots.appendChild(dot);
+          });
+          b.appendChild(dots);
+          b.appendChild(document.createTextNode(p.label));
+          wrap.appendChild(b);
+        });
+        wrap.addEventListener("click", function (e) {
+          var b2 = e.target.closest("button"); if (!b2) return;
+          settings.colorPreset = b2.getAttribute("data-val");
+          saveSettings(); buildMandala(); refreshSegs();
+        });
+      })();
+
+      function refreshSegs() {
+        setSeg("segPos", settings.pos);
+        setSeg("segVib", settings.vib);
+        setSeg("segSound", settings.sound ? "on" : "off");
+        setSeg("segBpm", String(settings.bpm));
+        setSeg("segDiff", settings.difficulty);
+        setSeg("segDiffStart", settings.difficulty);
+        setSeg("segPattern", settings.patternPreset);
+        var sw = document.querySelectorAll("#colorSwatches .swatch");
+        for (var i = 0; i < sw.length; i++) sw[i].setAttribute("aria-pressed", sw[i].getAttribute("data-val") === settings.colorPreset ? "true" : "false");
+        updateHUD(false);
+      }
+      function setSeg(id, val) {
+        var seg = document.getElementById(id); if (!seg) return;
+        var btns = seg.querySelectorAll("button");
+        for (var i = 0; i < btns.length; i++) btns[i].setAttribute("aria-pressed", btns[i].getAttribute("data-val") === val ? "true" : "false");
+      }
+      function applyPos() {
+        hitBtn.classList.remove("pos-center", "pos-right", "pos-left");
+        hitBtn.classList.add("pos-" + settings.pos);
+      }
+      function bindSeg(id, fn) {
+        var seg = document.getElementById(id);
+        seg.addEventListener("click", function (e) {
+          var b = e.target.closest("button"); if (!b) return;
+          fn(b.getAttribute("data-val")); refreshSegs();
+        });
+      }
+      bindSeg("segPos", function (v) { settings.pos = v; applyPos(); saveSettings(); });
+      bindSeg("segVib", function (v) { settings.vib = v; saveSettings(); if (v === "hit") vibrateHit(); });
+      bindSeg("segSound", function (v) { settings.sound = (v === "on"); saveSettings(); if (settings.sound) { ensureAudio(); blip(880, 0.15, 0.15); } });
+      bindSeg("segBpm", function (v) {
+        var nb = parseInt(v, 10);
+        if (nb === settings.bpm) return;
+        settings.bpm = nb; saveSettings();
+        if (S.playing && !S.over) {
+          S.nextBeatTime = S.lastScheduledBeat + intervalMs();
+          S.pulseCursor = S.now;
+        }
+      });
+      bindSeg("segDiff", function (v) { settings.difficulty = v; saveSettings(); });
+      bindSeg("segDiffStart", function (v) { settings.difficulty = v; saveSettings(); });
+      bindSeg("segPattern", function (v) { settings.patternPreset = v; saveSettings(); buildMandala(); });
+
+      // RGB / 色相スライダー
+      function bindSlider(id, outId, key) {
+        var el = document.getElementById(id), out = document.getElementById(outId);
+        el.addEventListener("input", function () {
+          settings[key] = parseInt(el.value, 10) || 0;
+          out.textContent = el.value;
+          saveSettings(); buildMandala();
+        });
+      }
+      function refreshSliders() {
+        var map = [["tintR", "tintRVal", "tintR"], ["tintG", "tintGVal", "tintG"], ["tintB", "tintBVal", "tintB"], ["hueShift", "hueShiftVal", "hueShift"]];
+        map.forEach(function (m) {
+          document.getElementById(m[0]).value = settings[m[2]];
+          document.getElementById(m[1]).textContent = settings[m[2]];
+        });
+      }
+      bindSlider("tintR", "tintRVal", "tintR");
+      bindSlider("tintG", "tintGVal", "tintG");
+      bindSlider("tintB", "tintBVal", "tintB");
+      bindSlider("hueShift", "hueShiftVal", "hueShift");
+
+      applyPos();
+      refreshSegs();
+      refreshSliders();
+      buildMandala();
+      updateHUD(false);
+    </script>
+  </body>
+</html>
