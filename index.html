@@ -23,6 +23,34 @@
       @media (prefers-color-scheme: light) {
         :root { --ink:#2b1650; --ink-dim:rgba(43,22,80,.62); --panel:rgba(255,255,255,.94); --panel-line:rgba(122,77,255,.35); --chip:rgba(43,22,80,.08); }
       }
+      /* ===== ブラック版（サイケデリック／サイバー）: OS設定より優先して全面ダーク＋ネオン ===== */
+      body[data-theme="black"]{
+        --ink:#eaffff; --ink-dim:rgba(160,240,255,.72);
+        --panel:rgba(3,0,20,.94); --panel-line:rgba(0,240,255,.55);
+        --accent:#ff2bd6; --accent2:#00f0ff;
+        --btn-grad-a:#ff2bd6; --btn-grad-b:#00f0ff;
+        --chip:rgba(0,240,255,.10); --chip-on:#ff2bd6;
+        --danger:#ff3860; --ok:#a6ff00;
+        background:#000;
+      }
+      body[data-theme="black"] .overlay{background:rgba(0,0,8,.72)}
+      body[data-theme="black"] .card{border-color:rgba(0,240,255,.65);box-shadow:0 0 0 1px rgba(255,43,214,.35),0 0 34px rgba(0,240,255,.28),0 0 70px rgba(140,0,255,.35),0 24px 60px rgba(0,0,0,.8)}
+      body[data-theme="black"] .card h1{background:linear-gradient(92deg,#00f0ff,#a6ff00,#ff2bd6,#8c00ff,#ff5da2);-webkit-background-clip:text;background-clip:text}
+      body[data-theme="black"] .bigBtn{background:linear-gradient(92deg,#ff2bd6,#8c00ff 55%,#00f0ff);box-shadow:0 0 22px rgba(255,43,214,.65),0 0 34px rgba(0,240,255,.35);border:1px solid rgba(255,255,255,.55)}
+      body[data-theme="black"] .ghostBtn{border-color:rgba(0,240,255,.55);box-shadow:inset 0 0 12px rgba(0,240,255,.12)}
+      body[data-theme="black"] .iconBtn{border-color:rgba(0,240,255,.7);box-shadow:0 0 12px rgba(0,240,255,.35),inset 0 0 10px rgba(255,43,214,.18);color:#aefcff}
+      body[data-theme="black"] #hitBtn{border-color:#eaffff;background:radial-gradient(circle at 35% 30%,#ff2bd6,#8c00ff 52%,#001a33 105%);box-shadow:0 0 30px rgba(255,43,214,.8),0 0 55px rgba(0,240,255,.45),0 0 0 10px rgba(0,240,255,.16),inset 0 -10px 22px rgba(0,0,0,.55),inset 0 8px 18px rgba(255,255,255,.35)}
+      body[data-theme="black"] #hitBtn .ringMark{border-color:#a6ff00;box-shadow:0 0 18px #a6ff00,0 0 30px rgba(0,240,255,.8),inset 0 0 12px rgba(255,255,255,.6)}
+      body[data-theme="black"] #hitBtn.pressed{box-shadow:0 0 44px rgba(255,43,214,.95),0 0 70px rgba(0,240,255,.7),0 0 0 18px rgba(166,255,0,.22),inset 0 -6px 14px rgba(0,0,0,.4)}
+      body[data-theme="black"] .seg button[aria-pressed="true"],body[data-theme="black"] .rankTabs button[aria-pressed="true"]{background:linear-gradient(92deg,#ff2bd6,#8c00ff);box-shadow:0 0 14px rgba(255,43,214,.6);border-color:rgba(0,240,255,.8)}
+      body[data-theme="black"] .swatch[aria-pressed="true"]{border-color:#00f0ff;box-shadow:0 0 12px rgba(0,240,255,.5)}
+      body[data-theme="black"] .howto .dot{background:linear-gradient(135deg,#00f0ff,#ff2bd6);box-shadow:0 0 10px rgba(0,240,255,.6)}
+      body[data-theme="black"] #combo{color:#fff;text-shadow:0 0 6px #00f0ff,0 0 18px #ff2bd6,2px 0 0 rgba(0,240,255,.7),-2px 0 0 rgba(255,43,214,.7)}
+      body[data-theme="black"] #score,body[data-theme="black"] #life{text-shadow:0 0 10px rgba(0,240,255,.75)}
+      body[data-theme="black"].glitching #game{filter:saturate(1.6) contrast(1.15)}
+      body[data-theme="black"] #combo.glitching{animation:mbGlitch .28s steps(2,end) 1}
+      @keyframes mbGlitch{0%{transform:translate(2px,-1px) scale(1.14);text-shadow:3px 0 0 #00f0ff,-3px 0 0 #ff2bd6,0 0 20px #a6ff00}50%{transform:translate(-3px,1px) scale(1.1);text-shadow:-3px 0 0 #a6ff00,3px 0 0 #ff2bd6,0 0 20px #00f0ff}100%{transform:translate(0,0) scale(1.14)}}
+      @media (prefers-reduced-motion: reduce){body[data-theme="black"] #combo.glitching{animation:none}}
       *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
       html,body{height:100%}
       body{margin:0;overflow:hidden;font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;color:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none}
@@ -162,6 +190,13 @@
               <button data-val="hard">むずかしい<small>ミス5回で終了</small></button>
             </div>
           </div>
+          <div class="setGroup">
+            <div class="gLabel">テーマ</div>
+            <div class="seg" id="segThemeStart">
+              <button data-val="chill">チル<small>パステルで穏やか</small></button>
+              <button data-val="black">ブラック<small>サイケデリック・ネオン</small></button>
+            </div>
+          </div>
           <ul class="howto">
             <li><span class="dot">1</span><span>梵字が中心のゲートに重なる瞬間に、下の大きなボタンをタップ</span></li>
             <li><span class="dot">2</span><span>同じリズムの節が4回繰り返され、4回目だけ少しだけ変わります。覚えた節をなぞるのがコツです</span></li>
@@ -247,6 +282,14 @@
         <div class="card">
           <h2>設定</h2>
           <div class="setGroup">
+            <div class="gLabel">テーマ</div>
+            <div class="seg" id="segTheme">
+              <button data-val="chill">チル<small>パステル（既定）</small></button>
+              <button data-val="black">ブラック<small>黒×ネオン・サイケデリック</small></button>
+            </div>
+            <div class="gHint">ブラックでは曼荼羅・ノーツ・ボタン・文字がすべて黒背景＋ネオン発光に切り替わります。カラープリセットとRGB調整はチル側の配色として働き、ブラックではネオン配色に読み替えます。模様プリセットはどちらのテーマでも効きます。</div>
+          </div>
+          <div class="setGroup">
             <div class="gLabel">難易度</div>
             <div class="seg" id="segDiff">
               <button data-val="easy">かんたん<small>無制限・加速なし</small></button>
@@ -296,8 +339,29 @@
             <div class="gLabel">効果音</div>
             <div class="seg" id="segSound">
               <button data-val="off">OFF<small>無音で成立</small></button>
-              <button data-val="on">ON<small>ヒット音のみ</small></button>
+              <button data-val="on">ON<small>ヒット音＋コーラス</small></button>
             </div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">僧コーラス（ディレイラマ風）</div>
+            <div class="seg" id="segChorus">
+              <button data-val="off">切<small>詠唱なし</small></button>
+              <button data-val="weak">弱<small>控えめに重なる</small></button>
+              <button data-val="strong">強<small>しっかり詠唱</small></button>
+            </div>
+            <div class="gHint">ヒットが続くと低い僧声の詠唱がつながり、節に合わせて母音と音程が少しずつ移ります。ミスで詠唱は止まります。効果音がONのときだけ鳴ります。</div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">ヒット音の音色</div>
+            <div class="seg" id="segHitSound">
+              <button data-val="voice">僧声<small>短い母音</small></button>
+              <button data-val="mokugyo">木魚<small>ポクッと木質</small></button>
+              <button data-val="bell">小鐘<small>チーンと余韻</small></button>
+              <button data-val="crystal">結晶<small>澄んだ鈴</small></button>
+              <button data-val="drum">鼓動<small>低い膜音</small></button>
+              <button data-val="random">おまかせ<small>ヒットごとに切替</small></button>
+            </div>
+            <div class="gHint">選ぶとその場で試聴できます。判定とコンボで音程と明るさが少し変わります。</div>
           </div>
           <div class="setGroup">
             <div class="gLabel">開始テンポ（拍の間隔）</div>
@@ -441,9 +505,11 @@
       var reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       var lightScheme = window.matchMedia("(prefers-color-scheme: light)");
       var PAL = null;
+      function isBlack() { return typeof settings !== "undefined" && settings && settings.theme === "black"; }
       function pickPalette() {
-        if (lightScheme.matches) PAL = { bg: "#efeaff", bgDeep: "#ddd0ff", mandalaAlpha: 0.52, gate: "#3a1c96", text: "#2b1650", lighter: false };
-        else PAL = { bg: "#0a0618", bgDeep: "#050310", mandalaAlpha: 0.58, gate: "#ffffff", text: "#f4f1ff", lighter: true };
+        if (isBlack()) PAL = { bg: "#07001f", bgDeep: "#000000", bgEdge: "#01020a", mandalaAlpha: 0.98, gate: "#00f0ff", text: "#eaffff", lighter: true, black: true };
+        else if (lightScheme.matches) PAL = { bg: "#efeaff", bgDeep: "#ddd0ff", mandalaAlpha: 0.52, gate: "#3a1c96", text: "#2b1650", lighter: false, black: false };
+        else PAL = { bg: "#0a0618", bgDeep: "#050310", mandalaAlpha: 0.58, gate: "#ffffff", text: "#f4f1ff", lighter: true, black: false };
       }
       pickPalette();
 
@@ -464,14 +530,17 @@
       };
 
       // ---------- 設定（localStorageに保存） ----------
-      var settings = { pos: "center", vib: "off", sound: true, bpm: 120, difficulty: "normal", colorPreset: "rainbow", patternPreset: "standard", tintR: 0, tintG: 0, tintB: 0, hueShift: 0 };
+      var settings = { theme: "chill", pos: "center", vib: "off", sound: true, bpm: 120, difficulty: "normal", colorPreset: "rainbow", patternPreset: "standard", tintR: 0, tintG: 0, tintB: 0, hueShift: 0, chorus: "weak", hitSound: "voice" };
       (function loadSettings() {
         try {
           var raw = localStorage.getItem(LS_SETTINGS);
           if (raw) { var s = JSON.parse(raw); for (var k in settings) if (s[k] !== undefined) settings[k] = s[k]; }
         } catch (e) {}
+        if (settings.theme !== "black") settings.theme = "chill";
         if (!DIFFS[settings.difficulty]) settings.difficulty = "normal";
         if (!COLOR_PRESETS[settings.colorPreset]) settings.colorPreset = "rainbow";
+        if (["off", "weak", "strong"].indexOf(settings.chorus) < 0) settings.chorus = "weak";
+        if (["voice", "mokugyo", "bell", "crystal", "drum", "random"].indexOf(settings.hitSound) < 0) settings.hitSound = "voice";
       })();
       function saveSettings() { try { localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); } catch (e) {} }
 
@@ -508,7 +577,7 @@
           playing: false, paused: false, over: false,
           now: 0, lastScheduledBeat: 0, pulseCursor: 0, nextBeatTime: 0, beatIndex: 0,
           notes: [], particles: [], beatRings: [], popups: [], shockwaves: [],
-          gateFlash: null, rot: 0,
+          gateFlash: null, glitchAt: -99999, rot: 0,
           score: 0, combo: 0, maxCombo: 0,
           counts: { perfect: 0, great: 0, good: 0, miss: 0 },
           startedAt: 0, overAt: 0, submitted: false,
@@ -603,28 +672,250 @@
       }
 
       // ---------- サウンド ----------
+      // すべて Web Audio のシンセ生成。外部の音声ファイル・実プラグイン・サンプルは使わない。
+      // 音声ノードはバスを使い回し、詠唱声は単声（3オシレータのデチューン）に絞り、
+      // ディレイのフィードバックにも上限を置いてモバイルで重くならないようにする。
       var audioCtx = null;
+      var masterGain = null, hitBus = null, chorusBus = null;
+      var delayL = null, delayR = null, delayWet = null;
+      var noiseBuf = null;
       function ensureAudio() {
         if (!settings.sound) return;
-        if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audioCtx = null; } }
+        if (!audioCtx) {
+          try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audioCtx = null; }
+          if (audioCtx) buildAudioGraph();
+        }
         if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
       }
-      function blip(freq, dur, vol, type) {
-        if (!settings.sound || !audioCtx) return;
+      function panNode(pan) {
+        if (audioCtx.createStereoPanner) { var p = audioCtx.createStereoPanner(); p.pan.value = pan; return p; }
+        return audioCtx.createGain();
+      }
+      function buildAudioGraph() {
+        masterGain = audioCtx.createGain(); masterGain.gain.value = 0.9;
+        masterGain.connect(audioCtx.destination);
+        hitBus = audioCtx.createGain(); hitBus.gain.value = 0.9; hitBus.connect(masterGain);
+        chorusBus = audioCtx.createGain(); chorusBus.gain.value = chorusLevel(); chorusBus.connect(masterGain);
+        // BPM同期ステレオ・ピンポンディレイ（帰還は左右とも0.30で上限固定）
+        delayL = audioCtx.createDelay(2); delayR = audioCtx.createDelay(2);
+        syncDelay();
+        var fbL = audioCtx.createGain(); fbL.gain.value = 0.30;
+        var fbR = audioCtx.createGain(); fbR.gain.value = 0.30;
+        delayWet = audioCtx.createGain(); delayWet.gain.value = 0.55; delayWet.connect(masterGain);
+        var panL = panNode(-0.55), panR = panNode(0.55);
+        delayL.connect(panL); panL.connect(delayWet);
+        delayR.connect(panR); panR.connect(delayWet);
+        delayL.connect(fbL); fbL.connect(delayR);
+        delayR.connect(fbR); fbR.connect(delayL);
+        chorusBus.connect(delayL);
+        // ノイズバッファ（木魚の打撃・鼓動のアタック用に1回だけ作って使い回す）
+        noiseBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 0.12), audioCtx.sampleRate);
+        var d = noiseBuf.getChannelData(0);
+        for (var i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      }
+      function syncDelay() {
+        if (!delayL || !delayR) return;
+        var beat = 60 / Math.max(40, currentBpm());
+        var t = audioCtx.currentTime;
+        delayL.delayTime.setTargetAtTime(beat * 0.75, t, 0.05);
+        delayR.delayTime.setTargetAtTime(beat * 0.5, t, 0.05);
+      }
+      function chorusLevel() {
+        return settings.chorus === "strong" ? 0.21 : settings.chorus === "weak" ? 0.105 : 0;
+      }
+
+      // ----- 僧コーラス（Delay Lama風フォルマント詠唱） -----
+      // 母音フォルマント [F1,F2,F3]。低い僧声に寄せるため全体を0.92倍。
+      var VOWELS = [
+        [671, 1003, 2244], // a
+        [524, 778, 2217],  // o
+        [276, 800, 2061],  // u
+        [488, 1693, 2282], // e
+        [671, 1003, 2244]  // a に戻る
+      ];
+      var CHANT_SCALE = [0, 2, 4, 7, 9, 7, 4, 2]; // 節の中で揺れる短い音階（基音 G2=98Hz）
+      var chant = null, chantTimer = null, chantStep = 0;
+      function setVowel(c, idx, glide) {
+        var v = VOWELS[idx % VOWELS.length], t = audioCtx.currentTime;
+        for (var i = 0; i < 3; i++) c.filters[i].frequency.setTargetAtTime(v[i], t, glide || 0.09);
+      }
+      function startChant() {
+        var t = audioCtx.currentTime;
+        var c = { oscs: [], filters: [], out: audioCtx.createGain() };
+        c.out.gain.setValueAtTime(0, t);
+        c.out.gain.linearRampToValueAtTime(1, t + 0.28); // ゆっくり立ち上がる詠唱
+        c.out.connect(chorusBus);
+        var fGains = [1, 0.55, 0.28], fQs = [5.5, 9, 13];
+        for (var fi = 0; fi < 3; fi++) {
+          var f = audioCtx.createBiquadFilter();
+          f.type = "bandpass"; f.Q.value = fQs[fi]; f.frequency.value = VOWELS[0][fi];
+          var fg = audioCtx.createGain(); fg.gain.value = fGains[fi];
+          f.connect(fg); fg.connect(c.out);
+          c.filters.push(f);
+        }
+        // 遅めのビブラート（4.6Hz、深さ控えめ）
+        var vib = audioCtx.createOscillator(); vib.type = "sine"; vib.frequency.value = 4.6;
+        var vibGain = audioCtx.createGain(); vibGain.gain.value = 5.5;
+        vib.connect(vibGain); vib.start(t);
+        c.vib = vib;
+        // 左右へ少しデチューンした3声（鋸波×2＋パルス波×1）
+        var dets = [-8, 0, 8], pans = [-0.35, 0, 0.35], types = ["sawtooth", "sawtooth", "square"];
+        var freq = chantFreq();
+        for (var oi = 0; oi < 3; oi++) {
+          var o = audioCtx.createOscillator();
+          o.type = types[oi]; o.frequency.value = freq; o.detune.value = dets[oi];
+          var og = audioCtx.createGain(); og.gain.value = oi === 2 ? 0.16 : 0.30;
+          var pn = panNode(pans[oi]);
+          o.connect(og); og.connect(pn);
+          for (var fj = 0; fj < 3; fj++) pn.connect(c.filters[fj]);
+          vibGain.connect(o.detune);
+          o.start(t);
+          c.oscs.push(o);
+        }
+        chant = c;
+        setVowel(c, chantStep % VOWELS.length, 0.02);
+      }
+      function chantFreq() {
+        return 98 * Math.pow(2, CHANT_SCALE[chantStep % CHANT_SCALE.length] / 12);
+      }
+      function glideChant() {
+        var t = audioCtx.currentTime, freq = chantFreq();
+        for (var i = 0; i < chant.oscs.length; i++) {
+          chant.oscs[i].frequency.setTargetAtTime(freq, t, 0.11); // ポルタメントで滑らかにつなぐ
+        }
+        setVowel(chant, chantStep % VOWELS.length, 0.1);
+      }
+      function scheduleChantRelease() {
+        if (chantTimer) clearTimeout(chantTimer);
+        var wait = Math.max(900, intervalMs() * 1.9);
+        chantTimer = setTimeout(function () { stopChant(0.7); }, wait);
+      }
+      function stopChant(fadeSec) {
+        if (!chant || !audioCtx) { chant = null; return; }
+        if (chantTimer) { clearTimeout(chantTimer); chantTimer = null; }
+        var c = chant; chant = null;
+        var t = audioCtx.currentTime;
+        try {
+          c.out.gain.cancelScheduledValues(t);
+          c.out.gain.setTargetAtTime(0, t, Math.max(0.03, (fadeSec || 0.4) / 3));
+          var stopAt = t + (fadeSec || 0.4) + 0.25;
+          c.oscs.forEach(function (o) { try { o.stop(stopAt); } catch (e) {} });
+          try { c.vib.stop(stopAt); } catch (e) {}
+          setTimeout(function () { try { c.out.disconnect(); } catch (e) {} }, (fadeSec || 0.4) * 1000 + 400);
+        } catch (e) {}
+      }
+      // ヒット成功：短いヒット音とは別層で、持続する詠唱を1歩進める
+      function chantNote() {
+        if (!settings.sound || settings.chorus === "off" || !audioCtx) return;
+        if (chorusBus) chorusBus.gain.setTargetAtTime(chorusLevel(), audioCtx.currentTime, 0.08);
+        syncDelay();
+        chantStep++;
+        if (!chant) startChant(); else glideChant();
+        scheduleChantRelease();
+      }
+      // ミス：詠唱をすばやく弱めて止める
+      function chantMiss() {
+        if (!chant) return;
+        stopChant(0.16);
+      }
+
+      // ----- ヒット音（全パターン シンセ生成） -----
+      function toneHit(opt) {
         var t = audioCtx.currentTime;
         var o = audioCtx.createOscillator(), g = audioCtx.createGain();
-        o.type = type || "sine"; o.frequency.value = freq;
+        o.type = opt.type || "sine";
+        o.frequency.setValueAtTime(opt.freq, t);
+        if (opt.freqEnd) o.frequency.exponentialRampToValueAtTime(Math.max(20, opt.freqEnd), t + opt.dur);
         g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(vol, t + 0.008);
+        g.gain.linearRampToValueAtTime(opt.vol, t + (opt.attack || 0.004));
+        g.gain.exponentialRampToValueAtTime(0.0001, t + opt.dur);
+        o.connect(g); g.connect(hitBus);
+        o.start(t); o.stop(t + opt.dur + 0.05);
+      }
+      function noiseHit(freq, q, dur, vol) {
+        if (!noiseBuf) return;
+        var t = audioCtx.currentTime;
+        var src = audioCtx.createBufferSource(); src.buffer = noiseBuf;
+        var f = audioCtx.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = freq; f.Q.value = q;
+        var g = audioCtx.createGain();
+        g.gain.setValueAtTime(vol, t);
         g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(t); o.stop(t + dur + 0.05);
+        src.connect(f); f.connect(g); g.connect(hitBus);
+        src.start(t); src.stop(t + dur + 0.02);
+      }
+      // 判定とコンボでピッチと明るさが少し上がる（アタックは常に短く保つ）
+      function hitPitch(kind) {
+        var base = kind === "perfect" ? 1.13 : kind === "great" ? 1.0 : 0.93;
+        var comboK = S ? Math.min(S.combo, 40) * 0.0035 : 0;
+        return base * (1 + comboK);
+      }
+      var HIT_PATTERNS = ["voice", "mokugyo", "bell", "crystal", "drum"];
+      function resolveHitPattern() {
+        if (settings.hitSound === "random") return HIT_PATTERNS[Math.floor(Math.random() * HIT_PATTERNS.length)];
+        return settings.hitSound;
+      }
+      function playHitPattern(pattern, kind) {
+        if (!audioCtx || !hitBus) return;
+        var pf = hitPitch(kind);
+        var bright = kind === "perfect" ? 1.15 : kind === "good" ? 0.9 : 1;
+        if (pattern === "voice") {
+          // 僧声：短いフォルマント母音（鋸波→帯域フィルタ2段）
+          var t = audioCtx.currentTime;
+          var v = VOWELS[(chantStep + 1) % VOWELS.length];
+          var o = audioCtx.createOscillator(); o.type = "sawtooth";
+          o.frequency.setValueAtTime(185 * pf, t);
+          o.frequency.exponentialRampToValueAtTime(150 * pf, t + 0.16);
+          var g = audioCtx.createGain();
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(0.30, t + 0.006);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.20);
+          [0, 1].forEach(function (fi) {
+            var f = audioCtx.createBiquadFilter();
+            f.type = "bandpass"; f.frequency.value = v[fi] * bright * 1.6; f.Q.value = 4.5;
+            var fg = audioCtx.createGain(); fg.gain.value = fi ? 0.5 : 1;
+            o.connect(f); f.connect(fg); fg.connect(g);
+          });
+          g.connect(hitBus);
+          o.start(t); o.stop(t + 0.26);
+        } else if (pattern === "mokugyo") {
+          toneHit({ freq: 640 * pf, freqEnd: 235, dur: 0.085, vol: 0.42, type: "triangle" });
+          noiseHit(2100 * bright, 7, 0.045, 0.22);
+        } else if (pattern === "bell") {
+          var bb = 1175 * pf;
+          toneHit({ freq: bb, dur: 0.55, vol: 0.20 });
+          toneHit({ freq: bb * 2.74, dur: 0.32, vol: 0.075 });
+          toneHit({ freq: bb * 5.43, dur: 0.16, vol: 0.032 });
+        } else if (pattern === "crystal") {
+          var cb = 1568 * pf;
+          toneHit({ freq: cb, dur: 0.38, vol: 0.20 });
+          toneHit({ freq: cb * 2, dur: 0.26, vol: 0.09 });
+          toneHit({ freq: cb * 3.01, dur: 0.15, vol: 0.045 });
+          toneHit({ freq: cb * 0.5, dur: 0.2, vol: 0.05 });
+        } else if (pattern === "drum") {
+          toneHit({ freq: 155 * pf, freqEnd: 52, dur: 0.27, vol: 0.5 });
+          noiseHit(900 * bright, 1.2, 0.03, 0.10);
+        }
+        if (kind === "perfect" && pattern !== "voice") {
+          toneHit({ freq: 1318 * pf, dur: 0.22, vol: 0.07 });
+        }
+      }
+      function previewHitSound() {
+        if (!settings.sound) return;
+        ensureAudio();
+        if (!audioCtx) return;
+        playHitPattern(resolveHitPattern(), "great");
       }
       function playJudge(kind) {
-        if (kind === "perfect") { blip(880, 0.22, 0.20); blip(1318, 0.3, 0.10); }
-        else if (kind === "great") blip(660, 0.18, 0.16);
-        else if (kind === "good") blip(520, 0.14, 0.13);
-        else if (kind === "miss") blip(150, 0.2, 0.10, "triangle");
+        if (!settings.sound) return;
+        ensureAudio();
+        if (!audioCtx) return;
+        if (kind === "miss") {
+          toneHit({ freq: 150, freqEnd: 88, dur: 0.2, vol: 0.11, type: "triangle" });
+          chantMiss();
+          return;
+        }
+        playHitPattern(resolveHitPattern(), kind);
+        chantNote();
       }
       function vibrateHit() { if (settings.vib === "hit" && navigator.vibrate) navigator.vibrate(15); }
 
@@ -661,6 +952,13 @@
         else { kind = "good"; label = "GOOD"; base = 300; color = "#8ecbff"; }
         S.combo++;
         if (S.combo > S.maxCombo) S.maxCombo = S.combo;
+        // ブラック版のみ：コンボ節目（25ごと）に軽いグリッチ／色ズレ
+        if (isBlack() && S.combo > 0 && S.combo % 25 === 0 && !reducedMotion) {
+          S.glitchAt = S.now;
+          document.body.classList.add("glitching");
+          comboEl.classList.add("glitching");
+          setTimeout(function () { document.body.classList.remove("glitching"); comboEl.classList.remove("glitching"); }, 300);
+        }
         S.counts[kind]++;
         S.score += base + Math.min(S.combo, 100) * 10;
         var sign = bestDt === 0 ? "" : (bestDt < 0 ? "-" : "+");
@@ -749,12 +1047,16 @@
         return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
       }
       // 層の色：プリセット色相＋色相シフト＋RGBティントを寄せる
+      // ブラック版のネオン配色 [外周=電光シアン, 蓮弁=マゼンタ, 幾何=アシッドグリーン, 蓮弁中=UV紫, 芯=ホットピンク]
+      var NEON_HUES = [187, 315, 96, 268, 335];
       function layerColor(layerIdx, alpha) {
         var preset = COLOR_PRESETS[settings.colorPreset] || COLOR_PRESETS.rainbow;
+        var black = PAL && PAL.black;
         var dark = PAL ? PAL.lighter : true;
-        var h = preset.hues[layerIdx % preset.hues.length] + settings.hueShift;
-        var s = preset.sat !== null ? preset.sat : (dark ? 92 : 78);
-        var l = dark ? 64 : 44;
+        // ブラックではチルのプリセット色相をネオン側へ読み替える（模様・RGB・色相シフトはそのまま効く）
+        var h = (black ? NEON_HUES[layerIdx % NEON_HUES.length] : preset.hues[layerIdx % preset.hues.length]) + settings.hueShift;
+        var s = black ? 100 : (preset.sat !== null ? preset.sat : (dark ? 92 : 78));
+        var l = black ? 62 : (dark ? 64 : 44);
         var rgb = hslToRgb(h, s, l);
         rgb[0] = Math.max(0, Math.min(255, rgb[0] + settings.tintR * 1.6));
         rgb[1] = Math.max(0, Math.min(255, rgb[1] + settings.tintG * 1.6));
@@ -886,15 +1188,30 @@
         ctx.save();
         if (PAL.lighter) ctx.globalCompositeOperation = "lighter";
         var sc = reducedMotion ? 1 : 1 + 0.02 * pulse;
+        var glitchAge = now - S.glitchAt;
+        var glitching = PAL.black && glitchAge >= 0 && glitchAge < 260 && !reducedMotion;
         for (var i = 0; i < mandalaLayers.length; i++) {
           var layer = mandalaLayers[i];
-          ctx.save();
-          ctx.translate(GEO.cx, GEO.cy);
-          ctx.rotate(bgAngle * layer.speed * rotFactor() + i * 0.35);
-          ctx.scale(sc, sc);
-          ctx.globalAlpha = PAL.mandalaAlpha;
-          ctx.drawImage(layer.cv, -MANDALA_R, -MANDALA_R, MANDALA_R * 2, MANDALA_R * 2);
-          ctx.restore();
+          // ブラック：同レイヤーを少し大きく薄く重ねて光の滲み（ハロー）を作る。追加は1パスだけに抑える
+          var passes = PAL.black ? [{ a: 0.34, s: 1.045 }, { a: PAL.mandalaAlpha, s: 1 }] : [{ a: PAL.mandalaAlpha, s: 1 }];
+          for (var pi2 = 0; pi2 < passes.length; pi2++) {
+            ctx.save();
+            ctx.translate(GEO.cx, GEO.cy);
+            ctx.rotate(bgAngle * layer.speed * rotFactor() + i * 0.35);
+            ctx.scale(sc * passes[pi2].s, sc * passes[pi2].s);
+            ctx.globalAlpha = passes[pi2].a;
+            ctx.drawImage(layer.cv, -MANDALA_R, -MANDALA_R, MANDALA_R * 2, MANDALA_R * 2);
+            ctx.restore();
+          }
+          if (glitching) {
+            // 色ズレ：シアン／マゼンタにずらした薄い複製を一瞬だけ重ねる
+            ctx.save();
+            ctx.translate(GEO.cx + 4, GEO.cy - 2);
+            ctx.rotate(bgAngle * layer.speed * rotFactor() + i * 0.35);
+            ctx.globalAlpha = 0.30;
+            ctx.drawImage(layer.cv, -MANDALA_R, -MANDALA_R, MANDALA_R * 2, MANDALA_R * 2);
+            ctx.restore();
+          }
         }
         ctx.restore();
       }
@@ -906,12 +1223,21 @@
       function draw(now) {
         var iv = intervalMs();
         var phase = ((now - S.pulseCursor) % iv + iv) % iv / iv;
-        var pulse = Math.exp(-phase * 4.2);
-        var hueBase = (205 + now * 0.012 + S.combo * 1.6 + settings.hueShift) % 360;
+        var pulse = Math.exp(-phase * (PAL.black ? 7.5 : 4.2)); // ブラックは鋭く短い脈動（ストロボにはしない）
+        var hueBase = PAL.black ? ((now * 0.045 + S.combo * 2.2 + settings.hueShift) % 360) : (205 + now * 0.012 + S.combo * 1.6 + settings.hueShift) % 360;
         ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
         var g = ctx.createRadialGradient(GEO.cx, GEO.cy, 10, GEO.cx, GEO.cy, Math.max(W, H) * 0.75);
-        g.addColorStop(0, PAL.bg); g.addColorStop(1, PAL.bgDeep);
+        if (PAL.black) { g.addColorStop(0, "#0d0033"); g.addColorStop(0.45, PAL.bg); g.addColorStop(1, "#000000"); }
+        else { g.addColorStop(0, PAL.bg); g.addColorStop(1, PAL.bgDeep); }
         ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        if (PAL.black && !reducedMotion) {
+          // 拍に同期した中心のネオングロー（全面フラッシュではなく中心だけが明滅する）
+          var glowR = GEO.outerR * (1.25 + 0.35 * pulse);
+          var gg = ctx.createRadialGradient(GEO.cx, GEO.cy, 0, GEO.cx, GEO.cy, glowR);
+          gg.addColorStop(0, "hsla(" + hueBase + ",100%,60%," + (0.16 + 0.14 * pulse) + ")");
+          gg.addColorStop(1, "hsla(" + ((hueBase + 160) % 360) + ",100%,55%,0)");
+          ctx.fillStyle = gg; ctx.fillRect(GEO.cx - glowR, GEO.cy - glowR, glowR * 2, glowR * 2);
+        }
         var sc = reducedMotion ? 1 : 1 + 0.016 * pulse;
         ctx.translate(GEO.cx, GEO.cy); ctx.scale(sc, sc); ctx.translate(-GEO.cx, -GEO.cy);
         drawMandala(now, pulse);
@@ -936,13 +1262,24 @@
           ctx.strokeStyle = "hsla(" + sw.hue + ", 100%, 72%, 1)"; ctx.globalAlpha = 0.45 * (1 - sk);
           ctx.lineWidth = 2; ctx.stroke();
           ctx.globalAlpha = 1;
+          if (PAL.black) {
+            // 多重ネオンリング：色相をずらした輪を内側に2本追加
+            [0.66, 0.5].forEach(function (k2, ri) {
+              ctx.beginPath(); ctx.arc(GEO.cx, GEO.cy, sR * k2, 0, Math.PI * 2);
+              ctx.strokeStyle = "hsla(" + ((sw.hue + 90 + ri * 80) % 360) + ", 100%, 68%, 1)";
+              ctx.globalAlpha = 0.55 * (1 - sk);
+              ctx.lineWidth = 2.6 * (1 - sk) + 0.5; ctx.stroke();
+            });
+            ctx.globalAlpha = 1;
+          }
           // 放射状の光条
           if (!reducedMotion) {
             ctx.save(); ctx.translate(GEO.cx, GEO.cy);
             ctx.strokeStyle = "hsla(" + sw.hue + ", 100%, 74%, 1)";
-            ctx.globalAlpha = 0.35 * (1 - sk); ctx.lineWidth = 1.6;
-            for (var ray = 0; ray < 12; ray++) {
-              var ra = ray / 12 * Math.PI * 2 + sw.t0 * 0.001;
+            ctx.globalAlpha = (PAL.black ? 0.55 : 0.35) * (1 - sk); ctx.lineWidth = PAL.black ? 2.2 : 1.6;
+            var rayN = PAL.black ? 18 : 12;
+            for (var ray = 0; ray < rayN; ray++) {
+              var ra = ray / rayN * Math.PI * 2 + sw.t0 * 0.001;
               ctx.beginPath();
               ctx.moveTo(Math.cos(ra) * sR * 0.92, Math.sin(ra) * sR * 0.92);
               ctx.lineTo(Math.cos(ra) * sR * 1.10, Math.sin(ra) * sR * 1.10);
@@ -961,14 +1298,15 @@
           ctx.save();
           ctx.beginPath(); ctx.moveTo(GEO.cx, GEO.cy);
           ctx.lineTo(GEO.cx + ca * n.startR, GEO.cy + sa * n.startR);
-          ctx.strokeStyle = "hsla(" + n.hue + ", 95%, 68%, " + (n.missed ? 0.03 : 0.10) + ")";
-          ctx.lineWidth = 1.5; ctx.stroke();
+          ctx.strokeStyle = "hsla(" + n.hue + ", 95%, 68%, " + (n.missed ? 0.03 : (PAL.black ? 0.26 : 0.10)) + ")";
+          ctx.lineWidth = PAL.black ? 2 : 1.5; ctx.stroke();
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          for (var tr = 3; tr >= 1; tr--) {
-            var gr = pos.r + tr * 34;
+          var trailN = PAL.black ? 5 : 3; // ブラックは残像を強める
+          for (var tr = trailN; tr >= 1; tr--) {
+            var gr = pos.r + tr * (PAL.black ? 30 : 34);
             if (gr > n.startR) continue;
             ctx.font = "700 " + (20 - tr * 2) + "px 'Noto Serif Devanagari', 'M PLUS Rounded 1c', serif";
-            ctx.fillStyle = "hsla(" + n.hue + ", 100%, 70%, " + (0.05 + (3 - tr) * 0.045) + ")";
+            ctx.fillStyle = "hsla(" + n.hue + ", 100%, 70%, " + (PAL.black ? (0.08 + (trailN - tr) * 0.06) : (0.05 + (3 - tr) * 0.045)) + ")";
             ctx.fillText(n.glyph, GEO.cx + ca * gr, GEO.cy + sa * gr);
           }
           var pk = Math.max(0, Math.min(1, pos.p));
@@ -981,7 +1319,7 @@
           ctx.lineWidth = 1.6; ctx.stroke();
           ctx.font = "700 " + fontPx + "px 'Noto Serif Devanagari', 'M PLUS Rounded 1c', serif";
           ctx.shadowColor = "hsla(" + n.hue + ", 100%, 65%, 0.95)";
-          ctx.shadowBlur = n.missed ? 0 : 16;
+          ctx.shadowBlur = n.missed ? 0 : (PAL.black ? 26 : 16); // 発光は強めるが値は上限固定で負荷を抑える
           ctx.fillStyle = n.missed ? "rgba(170,170,180,0.55)" : (PAL.lighter ? "#ffffff" : "hsl(" + n.hue + ", 85%, 34%)");
           ctx.fillText(n.glyph, pos.x, pos.y + fontPx * 0.04);
           ctx.restore();
@@ -1086,7 +1424,7 @@
       }
       function pauseGame() {
         if (!S.playing || S.paused || S.over) return;
-        S.paused = true; fillStats(); pauseOverlay.hidden = false;
+        S.paused = true; stopChant(0.2); fillStats(); pauseOverlay.hidden = false;
       }
       function resumeGame() { S.paused = false; pauseOverlay.hidden = true; ensureAudio(); }
       function accuracy() {
@@ -1107,6 +1445,7 @@
       function gameOver(reason) {
         if (S.over) return;
         S.over = true; S.playing = false; S.overAt = performance.now();
+        stopChant(0.5);
         document.getElementById("resultTitle").textContent = reason === "miss" ? "終了 — ミスの上限" : "終了";
         document.getElementById("resultReason").textContent =
           (reason === "miss" ? diff().label + "：ミス " + S.counts.miss + " 回で終了しました。" : diff().label + "：ここまでの記録です。") +
@@ -1277,9 +1616,13 @@
       })();
 
       function refreshSegs() {
+        setSeg("segTheme", settings.theme);
+        setSeg("segThemeStart", settings.theme);
         setSeg("segPos", settings.pos);
         setSeg("segVib", settings.vib);
         setSeg("segSound", settings.sound ? "on" : "off");
+        setSeg("segChorus", settings.chorus);
+        setSeg("segHitSound", settings.hitSound);
         setSeg("segBpm", String(settings.bpm));
         setSeg("segDiff", settings.difficulty);
         setSeg("segDiffStart", settings.difficulty);
@@ -1297,6 +1640,11 @@
         hitBtn.classList.remove("pos-center", "pos-right", "pos-left");
         hitBtn.classList.add("pos-" + settings.pos);
       }
+      function applyTheme() {
+        document.body.setAttribute("data-theme", settings.theme);
+        pickPalette();
+        buildMandala();
+      }
       function bindSeg(id, fn) {
         var seg = document.getElementById(id);
         seg.addEventListener("click", function (e) {
@@ -1304,9 +1652,22 @@
           fn(b.getAttribute("data-val")); refreshSegs();
         });
       }
+      bindSeg("segTheme", function (v) { settings.theme = v === "black" ? "black" : "chill"; saveSettings(); applyTheme(); });
+      bindSeg("segThemeStart", function (v) { settings.theme = v === "black" ? "black" : "chill"; saveSettings(); applyTheme(); });
       bindSeg("segPos", function (v) { settings.pos = v; applyPos(); saveSettings(); });
       bindSeg("segVib", function (v) { settings.vib = v; saveSettings(); if (v === "hit") vibrateHit(); });
-      bindSeg("segSound", function (v) { settings.sound = (v === "on"); saveSettings(); if (settings.sound) { ensureAudio(); blip(880, 0.15, 0.15); } });
+      bindSeg("segSound", function (v) {
+        settings.sound = (v === "on"); saveSettings();
+        if (settings.sound) previewHitSound();
+        else stopChant(0.05);
+      });
+      bindSeg("segChorus", function (v) {
+        settings.chorus = v; saveSettings();
+        if (chorusBus && audioCtx) chorusBus.gain.setTargetAtTime(chorusLevel(), audioCtx.currentTime, 0.05);
+        if (v === "off") stopChant(0.1);
+        else if (settings.sound) { ensureAudio(); if (audioCtx) { chantStep++; if (!chant) startChant(); else glideChant(); scheduleChantRelease(); } }
+      });
+      bindSeg("segHitSound", function (v) { settings.hitSound = v; saveSettings(); previewHitSound(); });
       bindSeg("segBpm", function (v) {
         var nb = parseInt(v, 10);
         if (nb === settings.bpm) return;
@@ -1342,9 +1703,9 @@
       bindSlider("hueShift", "hueShiftVal", "hueShift");
 
       applyPos();
+      applyTheme();
       refreshSegs();
       refreshSliders();
-      buildMandala();
       updateHUD(false);
     </script>
   </body>
