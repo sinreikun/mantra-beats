@@ -13,30 +13,45 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
       :root {
-        --ink: #f4f1ff; --ink-dim: rgba(244,241,255,.62);
-        --panel: rgba(16,10,38,.9); --panel-line: rgba(178,156,255,.35);
-        --accent: #ff5da2; --accent2: #37e0c8;
-        --btn-grad-a: #ff5da2; --btn-grad-b: #7a4dff;
-        --chip: rgba(255,255,255,.08); --chip-on: #ff5da2;
-        --danger: #ff7a7a; --ok: #37e0c8;
+        --ink: #2d0a4e; --ink-dim: rgba(45,10,78,.66);
+        --panel: rgba(255,253,244,.96); --panel-line: rgba(90,10,120,.38);
+        --accent: #e6007e; --accent2: #009b8a;
+        --btn-grad-a: #e6007e; --btn-grad-b: #ff7a00;
+        --chip: rgba(45,10,78,.07); --chip-on: #e6007e;
+        --danger: #d90429; --ok: #009b8a;
       }
-      @media (prefers-color-scheme: light) {
-        :root { --ink:#2b1650; --ink-dim:rgba(43,22,80,.62); --panel:rgba(255,255,255,.94); --panel-line:rgba(122,77,255,.35); --chip:rgba(43,22,80,.08); }
+      /* ===== あかるいテーマ（フォーク／民芸曼荼羅）: OS設定によらず白〜クリーム地で固定 ===== */
+      body[data-theme="chill"]{
+        --ink:#2d0a4e; --ink-dim:rgba(45,10,78,.66);
+        --panel:rgba(255,253,244,.96); --panel-line:rgba(90,10,120,.38);
+        --accent:#e6007e; --accent2:#009b8a;
+        --btn-grad-a:#e6007e; --btn-grad-b:#ff7a00;
+        --chip:rgba(45,10,78,.07); --chip-on:#e6007e;
+        background:#fff6dc;
       }
-      /* ===== ブラック版（サイケデリック／サイバー）: OS設定より優先して全面ダーク＋ネオン ===== */
+      body[data-theme="chill"] .overlay{background:rgba(255,246,220,.58)}
+      body[data-theme="chill"] .card{border:2px solid #3a0a6b;box-shadow:0 0 0 3px #ffb300,0 0 0 5px #009b8a,0 18px 44px rgba(58,10,107,.28)}
+      body[data-theme="chill"] .card h1{background:linear-gradient(92deg,#009b8a,#e6007e 32%,#ff7a00 58%,#7ac70c 80%,#5b2ee5);-webkit-background-clip:text;background-clip:text}
+      body[data-theme="chill"] .bigBtn{background:linear-gradient(92deg,#e6007e,#ff7a00 55%,#009b8a);box-shadow:0 8px 22px rgba(230,0,126,.35);border:2px solid #3a0a6b}
+      body[data-theme="chill"] #hitBtn{border:3px solid #3a0a6b;background:radial-gradient(circle at 35% 30%,#ff2e9a,#e6007e 45%,#5b2ee5 105%);box-shadow:0 10px 28px rgba(58,10,107,.4),0 0 0 8px #ffb300,0 0 0 11px #009b8a,inset 0 -10px 22px rgba(0,0,0,.22),inset 0 8px 16px rgba(255,255,255,.4)}
+      body[data-theme="chill"] #hitBtn .ringMark{border-color:#fff8dc;box-shadow:0 0 0 3px #009b8a,0 0 12px rgba(255,255,255,.7)}
+      body[data-theme="chill"] .howto .dot{background:conic-gradient(#009b8a,#e6007e,#ff7a00,#7ac70c,#009b8a);border:1.5px solid #3a0a6b}
+      body[data-theme="chill"] .seg button[aria-pressed="true"],body[data-theme="chill"] .rankTabs button[aria-pressed="true"]{background:#e6007e;border-color:#3a0a6b}
+      body[data-theme="chill"] .swatch[aria-pressed="true"]{border-color:#3a0a6b;box-shadow:0 0 0 2px #ffb300}
+      /* ===== ブラック版（ネオン幾何学カレイドスコープ）: OS設定より優先して全面ダーク＋ネオン ===== */
       body[data-theme="black"]{
         --ink:#eaffff; --ink-dim:rgba(160,240,255,.72);
-        --panel:rgba(3,0,20,.94); --panel-line:rgba(0,240,255,.55);
+        --panel:rgba(2,2,18,.95); --panel-line:rgba(0,240,255,.55);
         --accent:#ff2bd6; --accent2:#00f0ff;
-        --btn-grad-a:#ff2bd6; --btn-grad-b:#00f0ff;
+        --btn-grad-a:#ff2bd6; --btn-grad-b:#2b4bff;
         --chip:rgba(0,240,255,.10); --chip-on:#ff2bd6;
         --danger:#ff3860; --ok:#a6ff00;
-        background:#000;
+        background:#02020f;
       }
       body[data-theme="black"] .overlay{background:rgba(0,0,8,.72)}
-      body[data-theme="black"] .card{border-color:rgba(0,240,255,.65);box-shadow:0 0 0 1px rgba(255,43,214,.35),0 0 34px rgba(0,240,255,.28),0 0 70px rgba(140,0,255,.35),0 24px 60px rgba(0,0,0,.8)}
-      body[data-theme="black"] .card h1{background:linear-gradient(92deg,#00f0ff,#a6ff00,#ff2bd6,#8c00ff,#ff5da2);-webkit-background-clip:text;background-clip:text}
-      body[data-theme="black"] .bigBtn{background:linear-gradient(92deg,#ff2bd6,#8c00ff 55%,#00f0ff);box-shadow:0 0 22px rgba(255,43,214,.65),0 0 34px rgba(0,240,255,.35);border:1px solid rgba(255,255,255,.55)}
+      body[data-theme="black"] .card{border:1.5px solid rgba(0,240,255,.8);box-shadow:0 0 0 1px rgba(255,43,214,.5),0 0 0 3px rgba(43,75,255,.45),0 0 34px rgba(0,240,255,.28),0 0 70px rgba(255,122,0,.18),0 24px 60px rgba(0,0,0,.85)}
+      body[data-theme="black"] .card h1{background:linear-gradient(92deg,#00f0ff,#a6ff00 28%,#ff2bd6 55%,#ff7a00 78%,#2b4bff);-webkit-background-clip:text;background-clip:text}
+      body[data-theme="black"] .bigBtn{background:linear-gradient(92deg,#ff2bd6,#2b4bff 55%,#00f0ff);box-shadow:0 0 22px rgba(255,43,214,.65),0 0 34px rgba(0,240,255,.35);border:1px solid rgba(255,255,255,.55)}
       body[data-theme="black"] .ghostBtn{border-color:rgba(0,240,255,.55);box-shadow:inset 0 0 12px rgba(0,240,255,.12)}
       body[data-theme="black"] .iconBtn{border-color:rgba(0,240,255,.7);box-shadow:0 0 12px rgba(0,240,255,.35),inset 0 0 10px rgba(255,43,214,.18);color:#aefcff}
       body[data-theme="black"] #hitBtn{border-color:#eaffff;background:radial-gradient(circle at 35% 30%,#ff2bd6,#8c00ff 52%,#001a33 105%);box-shadow:0 0 30px rgba(255,43,214,.8),0 0 55px rgba(0,240,255,.45),0 0 0 10px rgba(0,240,255,.16),inset 0 -10px 22px rgba(0,0,0,.55),inset 0 8px 18px rgba(255,255,255,.35)}
@@ -46,7 +61,7 @@
       body[data-theme="black"] .swatch[aria-pressed="true"]{border-color:#00f0ff;box-shadow:0 0 12px rgba(0,240,255,.5)}
       body[data-theme="black"] .howto .dot{background:linear-gradient(135deg,#00f0ff,#ff2bd6);box-shadow:0 0 10px rgba(0,240,255,.6)}
       body[data-theme="black"] #combo{color:#fff;text-shadow:0 0 6px #00f0ff,0 0 18px #ff2bd6,2px 0 0 rgba(0,240,255,.7),-2px 0 0 rgba(255,43,214,.7)}
-      body[data-theme="black"] #score,body[data-theme="black"] #life{text-shadow:0 0 10px rgba(0,240,255,.75)}
+      body[data-theme="black"] #score,body[data-theme="black"] #life,body[data-theme="black"] #bpmVal{text-shadow:0 0 10px rgba(0,240,255,.75)}
       body[data-theme="black"].glitching #game{filter:saturate(1.6) contrast(1.15)}
       body[data-theme="black"] #combo.glitching{animation:mbGlitch .28s steps(2,end) 1}
       @keyframes mbGlitch{0%{transform:translate(2px,-1px) scale(1.14);text-shadow:3px 0 0 #00f0ff,-3px 0 0 #ff2bd6,0 0 20px #a6ff00}50%{transform:translate(-3px,1px) scale(1.1);text-shadow:-3px 0 0 #a6ff00,3px 0 0 #ff2bd6,0 0 20px #00f0ff}100%{transform:translate(0,0) scale(1.14)}}
@@ -60,7 +75,9 @@
       #frameFlash{position:absolute;inset:0;pointer-events:none;opacity:0;border:3px solid rgba(255,255,255,.85);box-shadow:inset 0 0 60px rgba(255,255,255,.35)}
       #hud{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 14px 0;display:flex;align-items:flex-start;gap:10px;pointer-events:none;z-index:6}
       #scoreBox{min-width:96px}
-      #scoreBox .label,#comboBox .label,#lifeBox .label{font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--ink-dim)}
+      #scoreBox .label,#comboBox .label,#lifeBox .label,#bpmBox .label{font-size:10px;font-weight:700;letter-spacing:.16em;color:var(--ink-dim)}
+      #bpmBox{text-align:center;min-width:58px}
+      #bpmVal{font-family:"Baloo 2",sans-serif;font-size:22px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
       #score{font-family:"Baloo 2","M PLUS Rounded 1c",sans-serif;font-size:29px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
       #subInfo{font-size:11px;font-weight:700;color:var(--ink-dim);margin-top:2px;white-space:nowrap}
       #comboBox{flex:1;text-align:center}
@@ -81,11 +98,10 @@
       #hitBtn.pressed{transform:scale(.88);filter:brightness(1.5);box-shadow:0 4px 18px rgba(122,77,255,.6),0 0 0 18px rgba(255,93,162,.28),0 0 44px 10px rgba(255,255,255,.55),inset 0 -6px 14px rgba(0,0,0,.2)}
       #hitBtn.pos-center.pressed{transform:translateX(-50%) scale(.88)}
       #btnHint{position:absolute;left:0;right:0;text-align:center;bottom:calc(env(safe-area-inset-bottom,0px) + 156px);font-size:12px;font-weight:700;color:var(--ink-dim);pointer-events:none;letter-spacing:.06em;z-index:4}
-      .overlay{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(8,4,24,.55);backdrop-filter:blur(3px)}
-      @media (prefers-color-scheme: light){.overlay{background:rgba(240,236,255,.55)}}
+      .overlay{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(255,246,220,.58);backdrop-filter:blur(3px)}
       .overlay[hidden]{display:none}
       .card{width:min(460px,100%);max-height:calc(100dvh - 28px);overflow-y:auto;background:var(--panel);border:1px solid var(--panel-line);border-radius:22px;padding:24px 22px 22px;box-shadow:0 24px 60px rgba(0,0,0,.45)}
-      .card h1{margin:0 0 4px;font-size:33px;font-weight:800;letter-spacing:.04em;background:linear-gradient(92deg,#ff5da2,#ffb84d,#37e0c8,#7a4dff);-webkit-background-clip:text;background-clip:text;color:transparent}
+      .card h1{margin:0 0 4px;font-size:33px;font-weight:800;letter-spacing:.04em;background:linear-gradient(92deg,#009b8a,#e6007e 32%,#ff7a00 58%,#7ac70c 80%,#5b2ee5);-webkit-background-clip:text;background-clip:text;color:transparent}
       .card h2{margin:0 0 12px;font-size:20px;font-weight:800}
       .card h3{margin:18px 0 8px;font-size:14px;font-weight:800}
       .card p{margin:0 0 10px;font-size:14px;line-height:1.75}
@@ -164,6 +180,10 @@
           <div id="combo"></div>
           <div class="label" id="comboLabel"></div>
         </div>
+        <div id="bpmBox">
+          <div class="label">BPM</div>
+          <div id="bpmVal">120</div>
+        </div>
         <div id="lifeBox">
           <div class="label">MISS</div>
           <div id="life">—</div>
@@ -181,26 +201,26 @@
       <div class="overlay" id="startOverlay">
         <div class="card">
           <h1>マントラビーツ</h1>
-          <p>音楽はいりません。拍は「目」で感じます。梵字が四方から中心へ一文字ずつ飛んできます。リズムはお経のように、短い節（フレーズ）を繰り返し唱える形。節の終わりには必ず息継ぎの休みが入ります。</p>
+          <p>音楽はいりません。拍は「目」で感じます。梵字が四方から中心へ一文字ずつ飛んできます。基本のノーツは木魚のように一拍ごとに一定の間隔で流れ続けます。ふつう／むずかしいでは、般若心経の「2音節の字」の出方を真似たパターンで、ところどころの拍の後半にもう一文字割り込みます。平らな時間と少し詰まる時間が入れ替わる、その偏りがリズムの指紋です。</p>
           <div class="setGroup">
             <div class="gLabel">難易度</div>
             <div class="seg" id="segDiffStart">
-              <button data-val="easy">かんたん<small>ミス無制限・加速なし</small></button>
-              <button data-val="normal">ふつう<small>ミス10回で終了</small></button>
-              <button data-val="hard">むずかしい<small>ミス5回で終了</small></button>
+              <button data-val="easy">かんたん<small>木魚ストリーム・ミス無制限</small></button>
+              <button data-val="normal">ふつう<small>音節パターン・ミス10回</small></button>
+              <button data-val="hard">むずかしい<small>音節パターン＋強い加速・ミス5回</small></button>
             </div>
           </div>
           <div class="setGroup">
             <div class="gLabel">テーマ</div>
             <div class="seg" id="segThemeStart">
-              <button data-val="chill">チル<small>パステルで穏やか</small></button>
-              <button data-val="black">ブラック<small>サイケデリック・ネオン</small></button>
+              <button data-val="chill">あかるい<small>白地に多色の装飾曼荼羅</small></button>
+              <button data-val="black">ブラック<small>黒紺にネオン幾何学</small></button>
             </div>
           </div>
           <ul class="howto">
             <li><span class="dot">1</span><span>梵字が中心のゲートに重なる瞬間に、下の大きなボタンをタップ</span></li>
-            <li><span class="dot">2</span><span>同じリズムの節が4回繰り返され、4回目だけ少しだけ変わります。覚えた節をなぞるのがコツです</span></li>
-            <li><span class="dot">3</span><span>ふつう／むずかしいは進むほどテンポと曼荼羅の回転が少しずつ速くなり、終盤は密な連打の節が来ます</span></li>
+            <li><span class="dot">2</span><span>基本の間隔は全難易度とも1拍ごとで一定です。ふつう／むずかしいでは「2音節の拍」があり、その拍の後半（半拍遅れ）に少し小さい梵字がもう1つ割り込みます。割り込みも通常どおり叩いてください</span></li>
+            <li><span class="dot">3</span><span>難易度によっては、進むほどテンポと曼荼羅の回転が少しずつ速くなります（間隔の拍数は変わりません）。バックでは、長い声の上に短い声が乗るお経のようなコーラスがずっと流れ続けます</span></li>
           </ul>
           <button class="bigBtn" id="startBtn">スタート</button>
           <button class="ghostBtn" id="startRankingBtn">ランキングを見る</button>
@@ -284,19 +304,19 @@
           <div class="setGroup">
             <div class="gLabel">テーマ</div>
             <div class="seg" id="segTheme">
-              <button data-val="chill">チル<small>パステル（既定）</small></button>
-              <button data-val="black">ブラック<small>黒×ネオン・サイケデリック</small></button>
+              <button data-val="chill">あかるい<small>フォーク装飾（既定）</small></button>
+              <button data-val="black">ブラック<small>黒紺×ネオン幾何学</small></button>
             </div>
-            <div class="gHint">ブラックでは曼荼羅・ノーツ・ボタン・文字がすべて黒背景＋ネオン発光に切り替わります。カラープリセットとRGB調整はチル側の配色として働き、ブラックではネオン配色に読み替えます。模様プリセットはどちらのテーマでも効きます。</div>
+            <div class="gHint">あかるいテーマは白〜クリーム地に、濃い輪郭と原色に近い多色で描く装飾曼荼羅です。ブラックはほぼ黒の濃紺地に、菱形・三角・放射光が同心に並ぶネオン幾何学曼荼羅です。カラープリセットとRGB／色相は、あかるい側では民芸色の色相として、ブラックではネオン色の色相として効きます。模様プリセット（花弁／幾何／宝珠などの構成）はどちらのテーマでも効きます。</div>
           </div>
           <div class="setGroup">
             <div class="gLabel">難易度</div>
             <div class="seg" id="segDiff">
-              <button data-val="easy">かんたん<small>無制限・加速なし</small></button>
-              <button data-val="normal">ふつう<small>ミス10回</small></button>
-              <button data-val="hard">むずかしい<small>ミス5回</small></button>
+              <button data-val="easy">かんたん<small>木魚ストリーム・無制限</small></button>
+              <button data-val="normal">ふつう<small>音節パターン・ミス10回</small></button>
+              <button data-val="hard">むずかしい<small>音節パターン＋強い加速・ミス5回</small></button>
             </div>
-            <div class="gHint">難易度は次にスタートした回から適用されます。</div>
+            <div class="gHint">かんたんは1拍ごとの木魚ストリームのみで、加速もありません。ふつう／むずかしいは基本1拍ごとに、般若心経の二音率（約17.6%）と段ごとの濃淡を真似たパターンで、2音節の拍の後半に割り込みノーツが入ります。むずかしいは基本間隔も1拍で、その代わり加速が最も強くなります。難易度は次にスタートした回から適用されます。</div>
           </div>
           <div class="setGroup">
             <div class="gLabel">カラープリセット</div>
@@ -349,19 +369,24 @@
               <button data-val="weak">弱<small>控えめに重なる</small></button>
               <button data-val="strong">強<small>しっかり詠唱</small></button>
             </div>
-            <div class="gHint">ヒットが続くと低い僧声の詠唱がつながり、節に合わせて母音と音程が少しずつ移ります。ミスで詠唱は止まります。効果音がONのときだけ鳴ります。</div>
+            <div class="gHint">ゲーム中はバックでお経のように途切れず流れ続けます。二層構造で、土台は8拍ぶん持続する長い声（ゆっくりポルタメントで音程が移る、抑揚の少ない持続層）、その上に2拍の長さの短い声が乗ります（長さの比は 8 対 2）。短い声は読経のように平板で、ビブラートや音程の抑揚はほぼありません。1音節ごとに同じ高さをまっすぐ伸ばし、表情は音程ではなく母音の切り替えだけで付けます。短い声の方が少し前に出る音量です。両層とも拍で長さを決め、テンポの加速にも追従します。ふつう／むずかしいの「2音節の拍」には2種類あります。「切る型」では短い声が1音目を拍の前半いっぱいに伸ばし、2音目を半拍後に短く切って置きます。「ざい型」では2音節を分けて言わず、1つの塊のまま母音だけを滑らせます。ミスしても長い声は止まらず、短い声だけ一瞬沈みます。効果音がONのときだけ鳴ります。</div>
           </div>
           <div class="setGroup">
             <div class="gLabel">ヒット音の音色</div>
             <div class="seg" id="segHitSound">
-              <button data-val="voice">僧声<small>短い母音</small></button>
-              <button data-val="mokugyo">木魚<small>ポクッと木質</small></button>
-              <button data-val="bell">小鐘<small>チーンと余韻</small></button>
-              <button data-val="crystal">結晶<small>澄んだ鈴</small></button>
-              <button data-val="drum">鼓動<small>低い膜音</small></button>
+              <button data-val="kick">キック<small>ドンッと沈む</small></button>
+              <button data-val="bass">ベース<small>低いプラック</small></button>
+              <button data-val="tom">タム<small>膜音2音</small></button>
+              <button data-val="snare">スネア<small>ノイズ＋胴鳴り</small></button>
+              <button data-val="wood">低木魚<small>低い木質ノック</small></button>
               <button data-val="random">おまかせ<small>ヒットごとに切替</small></button>
             </div>
-            <div class="gHint">選ぶとその場で試聴できます。判定とコンボで音程と明るさが少し変わります。</div>
+            <div class="gHint">すべてドラム／ベース系の低く重い音です。選ぶとその場で試聴できます。判定とコンボで音程は少し上がりますが、低域中心のままです。割り込みノーツは型で鳴り方が変わります。「ざい型」は従来どおり全音高く鳴り、「切る型」は音程を上げず、短く乾いた音で鳴ります。</div>
+          </div>
+          <div class="setGroup">
+            <div class="gLabel">効果音量（ヒット音）</div>
+            <div class="sliderRow"><span style="font-size:14px;">音</span><input type="range" id="hitVolume" min="0" max="100" step="1" /><output id="hitVolumeVal">100%</output></div>
+            <div class="gHint">ヒット音だけの音量です（基本ノーツ・割り込みノーツ・試聴音すべてに効きます）。コーラスの音量は上の「僧コーラス（切／弱／強）」で別に調整します。効果音がOFFのときは鳴りません。</div>
           </div>
           <div class="setGroup">
             <div class="gLabel">開始テンポ（拍の間隔）</div>
@@ -370,7 +395,8 @@
               <button data-val="120">120<small>ふつう</small></button>
               <button data-val="140">140<small>はやい</small></button>
             </div>
-            <div class="gHint">ふつう／むずかしいでは、ここから少しずつ速くなります。</div>
+            <div class="gHint" id="bpmStartDisp" style="font-size:13px;font-weight:800;color:var(--ink);">開始BPM 120</div>
+            <div class="gHint">ふつう／むずかしいでは、ここから少しずつ速くなります。プレイ中は画面上部のBPM表示で現在の実効テンポを確認できます。</div>
           </div>
           <button class="bigBtn" id="settingsCloseBtn">閉じる</button>
           <p class="dim" style="margin-top:12px;">※ iPhoneのSafariは振動APIに未対応のため、振動ONでも鳴らない場合があります。</p>
@@ -496,6 +522,7 @@
       var comboEl = document.getElementById("combo");
       var comboLabelEl = document.getElementById("comboLabel");
       var lifeEl = document.getElementById("life");
+      var bpmEl = document.getElementById("bpmVal");
       var hitBtn = document.getElementById("hitBtn");
       var btnHintEl = document.getElementById("btnHint");
       var phraseToastEl = document.getElementById("phraseToast");
@@ -507,9 +534,9 @@
       var PAL = null;
       function isBlack() { return typeof settings !== "undefined" && settings && settings.theme === "black"; }
       function pickPalette() {
-        if (isBlack()) PAL = { bg: "#07001f", bgDeep: "#000000", bgEdge: "#01020a", mandalaAlpha: 0.98, gate: "#00f0ff", text: "#eaffff", lighter: true, black: true };
-        else if (lightScheme.matches) PAL = { bg: "#efeaff", bgDeep: "#ddd0ff", mandalaAlpha: 0.52, gate: "#3a1c96", text: "#2b1650", lighter: false, black: false };
-        else PAL = { bg: "#0a0618", bgDeep: "#050310", mandalaAlpha: 0.58, gate: "#ffffff", text: "#f4f1ff", lighter: true, black: false };
+        // テーマが画面全体を決める（OSの明暗では切り替えない）
+        if (isBlack()) PAL = { bg: "#06061f", bgDeep: "#000000", bgEdge: "#02020f", mandalaAlpha: 1, gate: "#00f0ff", text: "#eaffff", lighter: false, black: true, folk: false };
+        else PAL = { bg: "#fffdf2", bgDeep: "#ffe3a1", bgEdge: "#fff6dc", mandalaAlpha: 1, gate: "#3a0a6b", text: "#2d0a4e", lighter: false, black: false, folk: true };
       }
       pickPalette();
 
@@ -530,7 +557,7 @@
       };
 
       // ---------- 設定（localStorageに保存） ----------
-      var settings = { theme: "chill", pos: "center", vib: "off", sound: true, bpm: 120, difficulty: "normal", colorPreset: "rainbow", patternPreset: "standard", tintR: 0, tintG: 0, tintB: 0, hueShift: 0, chorus: "weak", hitSound: "voice" };
+      var settings = { theme: "chill", pos: "center", vib: "off", sound: true, bpm: 120, difficulty: "normal", colorPreset: "rainbow", patternPreset: "standard", tintR: 0, tintG: 0, tintB: 0, hueShift: 0, chorus: "weak", hitSound: "bass", hitVolume: 100 };
       (function loadSettings() {
         try {
           var raw = localStorage.getItem(LS_SETTINGS);
@@ -540,34 +567,68 @@
         if (!DIFFS[settings.difficulty]) settings.difficulty = "normal";
         if (!COLOR_PRESETS[settings.colorPreset]) settings.colorPreset = "rainbow";
         if (["off", "weak", "strong"].indexOf(settings.chorus) < 0) settings.chorus = "weak";
-        if (["voice", "mokugyo", "bell", "crystal", "drum", "random"].indexOf(settings.hitSound) < 0) settings.hitSound = "voice";
+        // ヒット音はドラム/ベース系へ作り替え済み。旧音色の保存値は近い新音色か既定へ寄せる
+        if (settings.hitSound === "drum") settings.hitSound = "kick";
+        else if (settings.hitSound === "mokugyo") settings.hitSound = "wood";
+        else if (["kick", "bass", "tom", "snare", "wood", "random"].indexOf(settings.hitSound) < 0) settings.hitSound = "bass";
+        // 効果音量は 0〜100% に丸める（未保存なら既定100%＝従来の音量）
+        settings.hitVolume = Math.max(0, Math.min(100, Math.round(Number(settings.hitVolume))));
+        if (!isFinite(settings.hitVolume)) settings.hitVolume = 100;
       })();
       function saveSettings() { try { localStorage.setItem(LS_SETTINGS, JSON.stringify(settings)); } catch (e) {} }
 
       // ---------- 判定 ----------
       var WIN = { perfect: 70, great: 130, good: 200 };
       var TRAVEL_BEATS = 4;
-      var PHRASE_BEATS = 8; // 1節 = 8拍。末尾2拍は必ず休止（息継ぎ）
+      var LEAD_IN_BEATS = 2; // スタート後、最初のノーツが中心に着くまでの余白（＋飛来4拍）
 
-      // お経リズム：短いモチーフ（節の中の打点。0〜5拍目のみ）を繰り返す
-      var MOTIFS = [
-        [0, 2, 4], [0, 1, 3, 4], [0, 2, 3, 5], [0, 4, 5],
-        [0, 1, 4, 5], [0, 2, 4, 5], [0, 3, 5], [0, 1, 3, 5]
-      ];
-      var MOTIFS_DENSE = [
-        [0, 1, 2, 3, 4, 5], [0, 1, 3, 4, 5], [0, 1, 2, 4, 5], [0, 2, 3, 4, 5]
-      ];
-      function pickMotif(dense) {
-        var src = dense ? MOTIFS_DENSE : MOTIFS;
-        return src[Math.floor(Math.random() * src.length)].slice();
+      // ---------- 音節パターン譜面（般若心経の二音率・偏りの経験的生成器） ----------
+      // 基本の骨格は全難易度とも1拍ごとに1ノーツ（木魚ストリーム）。
+      // ふつう／むずかしいでは各拍に「1音節拍／2音節拍」の型を持たせ、
+      // 2音節拍の後半（+0.5拍）に小さな割り込みノーツを1つ追加する。
+      // 型の間隔（連続する1音節拍の数）は、般若心経262字の実測分布から抽選する。
+      // 全体の二音率の目安は p≒0.176。間隔0＝2音節拍の連続も起こる。
+      var SYLLABLE_GAPS = [3, 15, 3, 1, 3, 6, 0, 0, 3, 1, 3, 0, 14, 13, 4, 4, 3, 3, 3, 0, 3, 0, 3, 4, 4, 7, 3, 1, 3, 2, 12, 2, 9, 20, 5, 2, 28, 2, 3, 7, 0, 3, 1, 3, 4, 1];
+      var SYLLABLE_GAPS_DENSE = SYLLABLE_GAPS.filter(function (g) { return g <= 4; }); // 濃い段用（p≈0.26〜0.30）
+      var SYLLABLE_GAPS_THIN = SYLLABLE_GAPS.filter(function (g) { return g >= 5; });  // 薄い段用（p≈0.05〜0.11）
+      function syllablePatternEnabled() { return settings.difficulty !== "easy"; }
+      function drawSyllableGap(segType) {
+        var pool = segType === "dense" ? SYLLABLE_GAPS_DENSE : segType === "thin" ? SYLLABLE_GAPS_THIN : SYLLABLE_GAPS;
+        return pool[Math.floor(Math.random() * pool.length)];
       }
-      function varyMotif(m) {
-        var v = m.slice();
-        if (v.length >= 5) { v.splice(1 + Math.floor(Math.random() * (v.length - 2)), 1); return v; }
-        var candidates = [1, 2, 3, 4, 5].filter(function (b) { return v.indexOf(b) < 0; });
-        if (candidates.length && Math.random() < 0.75) v.push(candidates[Math.floor(Math.random() * candidates.length)]);
-        else if (v.length > 2) v.splice(1, 1);
-        return v.sort(function (a, b) { return a - b; });
+      function nextSegmentType(prev) {
+        // 平らな時間と詰まる時間が交互に来るよう、同じ濃さの段は続けない
+        var cands = ["dense", "thin", "mid"].filter(function (t) { return t !== prev; });
+        return cands[Math.floor(Math.random() * cands.length)];
+      }
+      function newSegmentLength() { return 20 + Math.floor(Math.random() * 17); } // 20〜36拍
+      function newPatternState() {
+        var types = ["dense", "thin", "mid"];
+        var segType = types[Math.floor(Math.random() * types.length)];
+        return { segType: segType, segRemaining: newSegmentLength(), beatsToDouble: drawSyllableGap(segType) };
+      }
+      // 2音節拍の型：般若心経の実測 28対18 の比率で「切る型」約61%／「ざい型」約39%
+      var DOUBLE_TYPE_CUT_RATIO = 28 / 46;
+      function drawDoubleType() { return Math.random() < DOUBLE_TYPE_CUT_RATIO ? "cut" : "zai"; }
+      // この拍の情報（1音節拍か2音節拍か＋2音節拍なら型）を返し、生成器の状態を1拍ぶん進める
+      function patternBeatInfo(pat) {
+        var isDouble = pat.beatsToDouble === 0;
+        pat.segRemaining--;
+        if (pat.segRemaining <= 0) {
+          pat.segType = nextSegmentType(pat.segType);
+          pat.segRemaining = newSegmentLength();
+        }
+        if (isDouble) pat.beatsToDouble = drawSyllableGap(pat.segType);
+        else pat.beatsToDouble--;
+        return { isDouble: isDouble, type: isDouble ? drawDoubleType() : null };
+      }
+      function noteIntervalBeats() {
+        // 基本間隔は全難易度で1拍に統一（むずかしいも0.5拍ではない）
+        return 1;
+      }
+      // 1拍ぶんの拍リングを出す間隔（ノーツ何個に1回か）
+      function notesPerBeat() {
+        return 1;
       }
 
       // ---------- ゲーム状態 ----------
@@ -581,9 +642,10 @@
           score: 0, combo: 0, maxCombo: 0,
           counts: { perfect: 0, great: 0, good: 0, miss: 0 },
           startedAt: 0, overAt: 0, submitted: false,
-          // フレーズ生成
-          beatInPhrase: 0, phraseCount: 0, motif: pickMotif(false), motifPlay: 0, activeNotes: null,
-          noteSeq: 0, gameOverTimer: -1
+          // 一定間隔ストリームの通し番号（拍リングと飛来方向の巡回に使う）
+          noteSeq: 0, gameOverTimer: -1,
+          // 音節パターン生成器の状態と、拍ごとの型（コーラス連動用に保持）
+          pat: null, patternSeq: []
         };
       }
       S = newState();
@@ -598,17 +660,6 @@
       function currentBpm() { return settings.bpm * (1 + diff().accelMax * accelK()); }
       function intervalMs() { return 60000 / currentBpm(); }
       function rotFactor() { return 1 + diff().rotAccel * accelK(); }
-      function inDenseSection() {
-        // 終盤の連打セクション：90秒以降は密な節が混ざり、150秒以降は中心になる
-        var sec = S.now / 1000;
-        if (settings.difficulty === "easy") return sec > 150 && (S.phraseCount % 3 === 0);
-        return sec > 90 && (sec > 150 || S.phraseCount % 2 === 0);
-      }
-      function refreshPhrasePattern() {
-        S.activeNotes = (S.motifPlay === 3) ? varyMotif(S.motif) : S.motif;
-      }
-      refreshPhrasePattern.call ? null : null;
-      S.activeNotes = S.motif;
 
       var BONJI = [
         { g: "ॐ", hue: 45 }, { g: "ह्रीः", hue: 335 }, { g: "हूं", hue: 265 },
@@ -632,48 +683,43 @@
         toastTimer = setTimeout(function () { phraseToastEl.classList.remove("show"); }, 1500);
       }
 
-      // 拍グリッドを先読み：フレーズ単位でノーツを置く
+      // 基本ノーツは1拍ごとに等間隔で置く（飛来速度・リードタイムは従来どおり）。
+      // ふつう／むずかしいでは、音節パターン生成器が2音節と判定した拍にだけ、
+      // その拍の後半（+0.5拍）へ同じグリフ・同じ飛来方向の小さな割り込みノーツを追加する。
+      // 割り込みも飛来時間は4拍で一定なので、基本ノーツの半拍遅れで中心に届く。
       function schedule() {
         var horizon = S.now + intervalMs() * TRAVEL_BEATS + 60;
+        var perBeat = notesPerBeat();
         while (S.nextBeatTime <= horizon) {
           var t = S.nextBeatTime;
           var iv = intervalMs();
-          if (S.beatInPhrase === 0 && S.phraseCount > 0 && S.motifPlay === 0) {
-            // 新しい節の始まり（表示は実際の到達時刻あたりに出すため軽く通知）
-          }
-          if (S.activeNotes && S.activeNotes.indexOf(S.beatInPhrase) >= 0) {
-            var seed = BONJI[S.noteSeq % BONJI.length];
-            // 飛来方向は黄金角で巡らせる（唱える順に場が回る）＋少しだけ揺らぎ
-            var ang = (S.noteSeq * 2.39996) % (Math.PI * 2) + (Math.random() * 0.5 - 0.25);
+          var seed = BONJI[S.noteSeq % BONJI.length];
+          // 飛来方向は黄金角で巡らせる（唱える順に場が回る）＋少しだけ揺らぎ
+          var ang = (S.noteSeq * 2.39996) % (Math.PI * 2) + (Math.random() * 0.5 - 0.25);
+          var beatInfo = S.pat ? patternBeatInfo(S.pat) : { isDouble: false, type: null };
+          var isDouble = beatInfo.isDouble;
+          S.patternSeq.push(beatInfo);
+          S.notes.push({
+            hitTime: t, travel: iv * TRAVEL_BEATS, glyph: seed.g, hue: seed.hue,
+            angle: ang, startR: edgeDist(ang) + 42, judged: false, missed: false, isSub: false, subType: null
+          });
+          if (isDouble) {
             S.notes.push({
-              hitTime: t, travel: iv * TRAVEL_BEATS, glyph: seed.g, hue: seed.hue,
-              angle: ang, startR: edgeDist(ang) + 42, judged: false, missed: false
+              hitTime: t + iv * 0.5, travel: iv * TRAVEL_BEATS, glyph: seed.g, hue: seed.hue,
+              angle: ang, startR: edgeDist(ang) + 42, judged: false, missed: false, isSub: true, subType: beatInfo.type
             });
-            S.noteSeq++;
           }
-          S.beatRings.push({ t0: t });
+          if (S.noteSeq % perBeat === 0) { S.beatRings.push({ t0: t }); S.beatIndex++; }
+          S.noteSeq++;
           S.lastScheduledBeat = t;
-          S.nextBeatTime = t + iv;
-          S.beatIndex++;
-          S.beatInPhrase++;
-          if (S.beatInPhrase >= PHRASE_BEATS) {
-            S.beatInPhrase = 0;
-            S.phraseCount++;
-            S.motifPlay++;
-            if (S.motifPlay >= 4) {
-              S.motifPlay = 0;
-              S.motif = pickMotif(inDenseSection());
-              if (S.playing && S.now > 1000) showPhraseToast(inDenseSection() ? "密 の 節" : "新 た な 節", S.motifPlay === 0 ? "同じリズムが4回くり返されます" : "");
-            }
-            S.activeNotes = (S.motifPlay === 3) ? varyMotif(S.motif) : S.motif;
-          }
+          S.nextBeatTime = t + iv * noteIntervalBeats();
         }
         while (S.beatRings.length && S.now - S.beatRings[0].t0 > intervalMs() * 2.2) S.beatRings.shift();
       }
 
       // ---------- サウンド ----------
       // すべて Web Audio のシンセ生成。外部の音声ファイル・実プラグイン・サンプルは使わない。
-      // 音声ノードはバスを使い回し、詠唱声は単声（3オシレータのデチューン）に絞り、
+      // 音声ノードはバスを使い回し、詠唱声は二層（長い声＋短い声、各2〜3オシレータ）に絞り、
       // ディレイのフィードバックにも上限を置いてモバイルで重くならないようにする。
       var audioCtx = null;
       var masterGain = null, hitBus = null, chorusBus = null;
@@ -694,7 +740,7 @@
       function buildAudioGraph() {
         masterGain = audioCtx.createGain(); masterGain.gain.value = 0.9;
         masterGain.connect(audioCtx.destination);
-        hitBus = audioCtx.createGain(); hitBus.gain.value = 0.9; hitBus.connect(masterGain);
+        hitBus = audioCtx.createGain(); hitBus.gain.value = hitBusLevel(); hitBus.connect(masterGain);
         chorusBus = audioCtx.createGain(); chorusBus.gain.value = chorusLevel(); chorusBus.connect(masterGain);
         // BPM同期ステレオ・ピンポンディレイ（帰還は左右とも0.30で上限固定）
         delayL = audioCtx.createDelay(2); delayR = audioCtx.createDelay(2);
@@ -723,73 +769,261 @@
       function chorusLevel() {
         return settings.chorus === "strong" ? 0.21 : settings.chorus === "weak" ? 0.105 : 0;
       }
+      // 効果音量（ヒット音専用バス）：100%＝従来のバスゲイン0.9。コーラスバスには影響しない
+      function hitBusLevel() { return 0.9 * (settings.hitVolume / 100); }
+      function applyHitVolume() {
+        if (hitBus && audioCtx) hitBus.gain.setTargetAtTime(hitBusLevel(), audioCtx.currentTime, 0.02);
+      }
 
-      // ----- 僧コーラス（Delay Lama風フォルマント詠唱） -----
-      // 母音フォルマント [F1,F2,F3]。低い僧声に寄せるため全体を0.92倍。
+      // ----- 僧コーラス（二層構造：長い声 8拍 ＋ 短い声 2拍） -----
+      // 土台の「長い声」：8拍ぶん持続する低い声。8拍ごとに音程がゆっくりポルタメントで
+      // 移り、ゲインも長くクロスフェードする。抑揚は付けない。（この層は従来どおり）
+      // 上物の「短い声」：読経の作法に合わせた平板な持続層。ビブラートと音程の抑揚は
+      // ほぼ無効化し、1音節ごとに同じ高さをまっすぐ伸ばす。音程は拍ごとに動かさず、
+      // 表情は母音（フォルマント）の切り替えだけで付ける。ポルタメントは境界で
+      // 素早く移る程度の最小限。長い声より少し前に出る音量。
+      // 両層とも長さは拍で定義し、予約のたびに currentBpm() を読むので加速にも追従する。
+      // 母音フォルマント [F1,F2,F3]（短い声用：明るく動きがある）
       var VOWELS = [
         [671, 1003, 2244], // a
         [524, 778, 2217],  // o
         [276, 800, 2061],  // u
         [488, 1693, 2282], // e
-        [671, 1003, 2244]  // a に戻る
+        [360, 900, 2100]   // ə寄り
       ];
-      var CHANT_SCALE = [0, 2, 4, 7, 9, 7, 4, 2]; // 節の中で揺れる短い音階（基音 G2=98Hz）
-      var chant = null, chantTimer = null, chantStep = 0;
-      function setVowel(c, idx, glide) {
-        var v = VOWELS[idx % VOWELS.length], t = audioCtx.currentTime;
-        for (var i = 0; i < 3; i++) c.filters[i].frequency.setTargetAtTime(v[i], t, glide || 0.09);
+      // 長い声用フォルマント：暗く丸い母音だけをゆっくり巡る
+      var LONG_VOWELS = [
+        [380, 640, 1950], // o 寄り
+        [300, 580, 1850], // u 寄り
+        [340, 700, 2000], // ɔ 寄り
+        [380, 640, 1950]
+      ];
+      // 長い声の行き先（半音）：8拍ブロックごとに1つ進む。小さくゆっくりだけ動く
+      var LONG_SCALE = [0, -2, 0, 3, 2, 0, -4, -2];
+      var LONG_BASE = 87.31; // F2
+      // 短い声の音程（半音）：平板化のため全て0＝同じ高さでまっすぐ伸ばす。
+      // 行／位置の情報は母音（フォルマント）の切り替え順を決めるためだけに使う
+      var SHORT_MELODIES = [
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0]
+      ];
+      var SHORT_BASE = 130.81; // C3（長い声より少し上、前へ出る）
+      var LONG_LEVEL = 0.60, SHORT_LEVEL = 0.98;
+      var chant = null, chantTimer = null;
+      // 常時ループ用：拍同期の先読みスケジューラ状態（chantStepCount = 経過拍数）
+      var chantActive = false, chantSchedTimer = null, chantNextTime = 0, chantStepCount = 0, chantPreviewTimer = null;
+      function makeFormantBank(dest, vowel, fGains, fQs) {
+        var filters = [];
+        for (var fi = 0; fi < 3; fi++) {
+          var f = audioCtx.createBiquadFilter();
+          f.type = "bandpass"; f.Q.value = fQs[fi]; f.frequency.value = vowel[fi];
+          var fg = audioCtx.createGain(); fg.gain.value = fGains[fi];
+          f.connect(fg); fg.connect(dest);
+          filters.push(f);
+        }
+        return filters;
+      }
+      function setFormantsAt(filters, vowel, t, tau) {
+        for (var i = 0; i < 3; i++) filters[i].frequency.setTargetAtTime(vowel[i], t, tau);
       }
       function startChant() {
         var t = audioCtx.currentTime;
-        var c = { oscs: [], filters: [], out: audioCtx.createGain() };
+        var c = {
+          oscs: [], vibs: [], longOscs: [], shortOscs: [],
+          longFilters: [], shortFilters: [], filters: [],
+          out: audioCtx.createGain(), longGain: audioCtx.createGain(), shortGain: audioCtx.createGain(),
+          shortLevel: SHORT_LEVEL
+        };
         c.out.gain.setValueAtTime(0, t);
-        c.out.gain.linearRampToValueAtTime(1, t + 0.28); // ゆっくり立ち上がる詠唱
+        c.out.gain.linearRampToValueAtTime(1, t + 0.35); // ゆっくり立ち上がる詠唱
         c.out.connect(chorusBus);
-        var fGains = [1, 0.55, 0.28], fQs = [5.5, 9, 13];
-        for (var fi = 0; fi < 3; fi++) {
-          var f = audioCtx.createBiquadFilter();
-          f.type = "bandpass"; f.Q.value = fQs[fi]; f.frequency.value = VOWELS[0][fi];
-          var fg = audioCtx.createGain(); fg.gain.value = fGains[fi];
-          f.connect(fg); fg.connect(c.out);
-          c.filters.push(f);
-        }
-        // 遅めのビブラート（4.6Hz、深さ控えめ）
-        var vib = audioCtx.createOscillator(); vib.type = "sine"; vib.frequency.value = 4.6;
-        var vibGain = audioCtx.createGain(); vibGain.gain.value = 5.5;
-        vib.connect(vibGain); vib.start(t);
-        c.vib = vib;
-        // 左右へ少しデチューンした3声（鋸波×2＋パルス波×1）
-        var dets = [-8, 0, 8], pans = [-0.35, 0, 0.35], types = ["sawtooth", "sawtooth", "square"];
-        var freq = chantFreq();
-        for (var oi = 0; oi < 3; oi++) {
+        c.longGain.gain.value = LONG_LEVEL; c.longGain.connect(c.out);
+        c.shortGain.gain.value = 0; // 最初の2拍ノートの入りで scheduleChantStep が持ち上げる
+        c.shortGain.connect(c.out);
+        c.longFilters = makeFormantBank(c.longGain, LONG_VOWELS[0], [1, 0.5, 0.22], [6, 10, 14]);
+        c.shortFilters = makeFormantBank(c.shortGain, VOWELS[0], [1, 0.55, 0.28], [5.5, 9, 13]);
+        c.filters = c.shortFilters;
+        // ビブラート：長い声は遅く浅く（3.0Hz、従来どおり）。短い声は平板化のため
+        // ほぼ無効化する（ゲイン0.4セント＝聞き取れない程度の残留のみ）
+        var longVib = audioCtx.createOscillator(); longVib.type = "sine"; longVib.frequency.value = 3.0;
+        var longVibGain = audioCtx.createGain(); longVibGain.gain.value = 2.0;
+        longVib.connect(longVibGain); longVib.start(t); c.vibs.push(longVib);
+        var shortVib = audioCtx.createOscillator(); shortVib.type = "sine"; shortVib.frequency.value = 5.4;
+        var shortVibGain = audioCtx.createGain(); shortVibGain.gain.value = 0.4;
+        shortVib.connect(shortVibGain); shortVib.start(t); c.vibs.push(shortVib);
+        c.vib = shortVib;
+        // 低いドローン基音（G1/G2）：長い声の下に常時敷く
+        var dFlt = audioCtx.createBiquadFilter(); dFlt.type = "lowpass"; dFlt.frequency.value = 240;
+        var dGain = audioCtx.createGain(); dGain.gain.value = 0.5;
+        dFlt.connect(dGain); dGain.connect(c.out);
+        c.droneGain = dGain;
+        [[49, "sine", 0.55], [98.2, "triangle", 0.24]].forEach(function (dp) {
+          var dOsc = audioCtx.createOscillator();
+          dOsc.type = dp[1]; dOsc.frequency.value = dp[0];
+          var dg = audioCtx.createGain(); dg.gain.value = dp[2];
+          dOsc.connect(dg); dg.connect(dFlt); dOsc.start(t);
+          c.oscs.push(dOsc);
+        });
+        // 長い声：デチューンした鋸波×2（8拍持続層）
+        var longFreq = LONG_BASE;
+        [-6, 6].forEach(function (det, oi) {
           var o = audioCtx.createOscillator();
-          o.type = types[oi]; o.frequency.value = freq; o.detune.value = dets[oi];
-          var og = audioCtx.createGain(); og.gain.value = oi === 2 ? 0.16 : 0.30;
-          var pn = panNode(pans[oi]);
+          o.type = "sawtooth"; o.frequency.value = longFreq; o.detune.value = det;
+          var og = audioCtx.createGain(); og.gain.value = 0.30;
+          var pn = panNode(oi === 0 ? -0.18 : 0.18);
           o.connect(og); og.connect(pn);
-          for (var fj = 0; fj < 3; fj++) pn.connect(c.filters[fj]);
-          vibGain.connect(o.detune);
+          for (var fj = 0; fj < 3; fj++) pn.connect(c.longFilters[fj]);
+          longVibGain.connect(o.detune);
           o.start(t);
-          c.oscs.push(o);
+          c.oscs.push(o); c.longOscs.push(o);
+        });
+        // 短い声：鋸波×2＋パルス波×1（2拍の旋律層）
+        var shortFreq = SHORT_BASE;
+        var dets = [-8, 0, 8], pans = [-0.35, 0, 0.35], types = ["sawtooth", "sawtooth", "square"];
+        for (var oi2 = 0; oi2 < 3; oi2++) {
+          var o2 = audioCtx.createOscillator();
+          o2.type = types[oi2]; o2.frequency.value = shortFreq; o2.detune.value = dets[oi2];
+          var og2 = audioCtx.createGain(); og2.gain.value = oi2 === 2 ? 0.16 : 0.30;
+          var pn2 = panNode(pans[oi2]);
+          o2.connect(og2); og2.connect(pn2);
+          for (var fj2 = 0; fj2 < 3; fj2++) pn2.connect(c.shortFilters[fj2]);
+          shortVibGain.connect(o2.detune);
+          o2.start(t);
+          c.oscs.push(o2); c.shortOscs.push(o2);
         }
         chant = c;
-        setVowel(c, chantStep % VOWELS.length, 0.02);
       }
-      function chantFreq() {
-        return 98 * Math.pow(2, CHANT_SCALE[chantStep % CHANT_SCALE.length] / 12);
+      function shortNoteAt(step) {
+        // step は拍数。8拍周期の中で 2拍単位の何番目の短い声かと、その旋律行を返す
+        var phrase = Math.floor(step / 8);
+        var pos = Math.floor((step % 8) / 2); // 0..3
+        var row = SHORT_MELODIES[phrase % SHORT_MELODIES.length];
+        return { phrase: phrase, pos: pos, semi: row[pos], row: row };
       }
-      function glideChant() {
-        var t = audioCtx.currentTime, freq = chantFreq();
-        for (var i = 0; i < chant.oscs.length; i++) {
-          chant.oscs[i].frequency.setTargetAtTime(freq, t, 0.11); // ポルタメントで滑らかにつなぐ
+      // コーラスの拍ステップ step が、ゲーム側の「2音節拍」の到着拍に当たるか。
+      // ノーツseq 0 の中心到着は開始から (TRAVEL+LEAD) 拍後で、コーラスも開始と同時に
+      // 拍を数え始めるため、その分だけ引いた seq を patternSeq で引く。
+      function chantStepPatternEntry(step) {
+        if (!S || !S.pat || !S.patternSeq) return null;
+        var idx = step - (TRAVEL_BEATS + LEAD_IN_BEATS);
+        if (idx < 0 || idx >= S.patternSeq.length) return null;
+        var e = S.patternSeq[idx];
+        // 旧形式（真偽値）にも耐えるよう正規化する
+        return typeof e === "boolean" ? { isDouble: e, type: null } : e;
+      }
+      function chantStepIsDouble(step) {
+        var e = chantStepPatternEntry(step);
+        return !!(e && e.isDouble);
+      }
+      // 2音節拍の型（"cut"＝切る型／"zai"＝ざい型）。2音節拍でなければ null
+      function chantStepDoubleType(step) {
+        var e = chantStepPatternEntry(step);
+        return e && e.isDouble ? (e.type || "zai") : null;
+      }
+      // ----- 常時ループ：拍グリッド同期の先読みスケジューラ（1拍刻みで予約） -----
+      function scheduleChantStep(step, t) {
+        if (!chant) return;
+        var beatSec = 60 / Math.max(40, currentBpm());
+        // === 長い声：8拍周期の頭でのみ、音程と母音をゆっくり移す ===
+        if (step % 8 === 0) {
+          var block = Math.floor(step / 8);
+          var longFreq = LONG_BASE * Math.pow(2, LONG_SCALE[block % LONG_SCALE.length] / 12);
+          for (var li = 0; li < chant.longOscs.length; li++) {
+            // ポルタメントの時定数は拍連動（約1.6拍）：8拍かけて滑らかに届く
+            chant.longOscs[li].frequency.setTargetAtTime(longFreq, t, beatSec * 1.6);
+          }
+          setFormantsAt(chant.longFilters, LONG_VOWELS[block % LONG_VOWELS.length], t, beatSec * 1.2);
+          // つなぎ目のクロスフェード：いったん少し沈めてから長く戻す
+          chant.longGain.gain.setTargetAtTime(LONG_LEVEL * 0.72, t, beatSec * 0.5);
+          chant.longGain.gain.setTargetAtTime(LONG_LEVEL, t + beatSec * 2, beatSec * 1.4);
         }
-        setVowel(chant, chantStep % VOWELS.length, 0.1);
+        // ドローンのうねりは長い声の周期に合わせる
+        if (chant.droneGain) chant.droneGain.gain.setTargetAtTime(step % 8 === 4 ? 0.44 : 0.52, t, beatSec * 1.5);
+        // === 短い声：2拍ごとに新しい音節が入る（平板：同じ高さをまっすぐ伸ばす） ===
+        if (step % 2 === 0) {
+          var sn = shortNoteAt(step);
+          var shortFreq = SHORT_BASE * Math.pow(2, sn.semi / 12);
+          for (var si = 0; si < chant.shortOscs.length; si++) {
+            // ポルタメントは最小限（約0.03拍）：境界で素早く移るだけにする
+            chant.shortOscs[si].frequency.setTargetAtTime(shortFreq, t, beatSec * 0.03);
+          }
+          setFormantsAt(chant.shortFilters, VOWELS[(sn.phrase * 2 + sn.pos) % VOWELS.length], t, beatSec * 0.3);
+          // 発音は膨らませず、同じ音量でまっすぐ持続させる
+          chant.shortGain.gain.setTargetAtTime(SHORT_LEVEL, t, beatSec * 0.05);
+        } else {
+          // 短い声の2拍目：音程は一切動かさない（ベンド廃止）。表情は母音の
+          // 途中移動（フォルマントだけが滑る）でのみ付け、音量は持続に戻す
+          var cur = shortNoteAt(step - 1), nxt = shortNoteAt(step + 1);
+          chant.shortGain.gain.setTargetAtTime(SHORT_LEVEL, t, beatSec * 0.08);
+          var vFrom = VOWELS[(cur.phrase * 2 + cur.pos) % VOWELS.length];
+          var vTo = VOWELS[(nxt.phrase * 2 + nxt.pos) % VOWELS.length];
+          var vMid = [0, 1, 2].map(function (fi) { return (vFrom[fi] + vTo[fi]) / 2; });
+          setFormantsAt(chant.shortFilters, vMid, t, beatSec * 0.5);
+        }
+        // === 2音節拍：型で言い分ける（「切る型」約61%／「ざい型」約39%） ===
+        // 切る型：1音目は拍の前半いっぱいに伸ばし（上の通常処理が持続させる）、
+        // 2音目は +0.5拍に同じ高さで短く切って置く（持続は拍の1/4以下、速い減衰、
+        // 音量は1音目より少し小さい）。音程は上げない。
+        // ざい型：2音節を分けて言わず、1つの塊として +0.5拍付近でフォルマント
+        // だけが滑って移る。2つ目の独立した発声（音量の立て直し）は入れない。
+        // 長い声（8拍層）はどちらでも触らない。
+        if (chantStepIsDouble(step)) {
+          var dblType = chantStepDoubleType(step);
+          var curSn = shortNoteAt(step - (step % 2));
+          var curFreq = SHORT_BASE * Math.pow(2, curSn.semi / 12);
+          var t2 = t + beatSec * 0.5;
+          var subVowel = VOWELS[(curSn.phrase * 2 + curSn.pos + 2) % VOWELS.length];
+          if (dblType === "cut") {
+            for (var ci = 0; ci < chant.shortOscs.length; ci++) {
+              // 同じ高さのまま：境界で素早く同音へ寄せ直すだけ（旋律的な変化なし）
+              chant.shortOscs[ci].frequency.setTargetAtTime(curFreq, t2, beatSec * 0.02);
+            }
+            setFormantsAt(chant.shortFilters, subVowel, t2, beatSec * 0.03);
+            // 子音の打撃のように一瞬だけ立て、拍の1/4ほどで速く減衰させて切る
+            chant.shortGain.gain.setTargetAtTime(SHORT_LEVEL * 0.45, t2, beatSec * 0.02);
+            chant.shortGain.gain.setTargetAtTime(SHORT_LEVEL * 0.82, t2 + beatSec * 0.04, beatSec * 0.03);
+            chant.shortGain.gain.setTargetAtTime(SHORT_LEVEL * 0.28, t2 + beatSec * 0.16, beatSec * 0.035);
+          } else {
+            // ざい型：音程も音量も触らず、母音だけが1つの塊の中で滑って移る
+            setFormantsAt(chant.shortFilters, subVowel, t2, beatSec * 0.14);
+          }
+        }
       }
-      function scheduleChantRelease() {
-        if (chantTimer) clearTimeout(chantTimer);
-        var wait = Math.max(900, intervalMs() * 1.9);
-        chantTimer = setTimeout(function () { stopChant(0.7); }, wait);
+      function chantTick() {
+        if (!chantActive || !chant || !audioCtx) return;
+        var ahead = audioCtx.currentTime + 0.32;
+        while (chantNextTime <= ahead) {
+          scheduleChantStep(chantStepCount, chantNextTime);
+          chantStepCount++;
+          chantNextTime += 60 / Math.max(40, currentBpm());
+        }
       }
+      function startChantLoop() {
+        if (!settings.sound || settings.chorus === "off" || !audioCtx || !chorusBus) return;
+        if (chantPreviewTimer) { clearTimeout(chantPreviewTimer); chantPreviewTimer = null; }
+        if (chorusBus) chorusBus.gain.setTargetAtTime(chorusLevel(), audioCtx.currentTime, 0.08);
+        syncDelay();
+        if (!chant) {
+          startChant();
+          chantStepCount = 0;
+          chantNextTime = audioCtx.currentTime + 0.08;
+        }
+        chantActive = true;
+        if (chantSchedTimer) clearInterval(chantSchedTimer);
+        chantSchedTimer = setInterval(chantTick, 90);
+        chantTick();
+      }
+      function stopChantLoop(fadeSec) {
+        chantActive = false;
+        if (chantSchedTimer) { clearInterval(chantSchedTimer); chantSchedTimer = null; }
+        if (chantPreviewTimer) { clearTimeout(chantPreviewTimer); chantPreviewTimer = null; }
+        stopChant(fadeSec);
+      }
+      function scheduleChantRelease() { /* 常時ループ化により不使用（互換のため残置） */ }
       function stopChant(fadeSec) {
         if (!chant || !audioCtx) { chant = null; return; }
         if (chantTimer) { clearTimeout(chantTimer); chantTimer = null; }
@@ -800,23 +1034,24 @@
           c.out.gain.setTargetAtTime(0, t, Math.max(0.03, (fadeSec || 0.4) / 3));
           var stopAt = t + (fadeSec || 0.4) + 0.25;
           c.oscs.forEach(function (o) { try { o.stop(stopAt); } catch (e) {} });
-          try { c.vib.stop(stopAt); } catch (e) {}
+          (c.vibs || []).forEach(function (v) { try { v.stop(stopAt); } catch (e) {} });
+          if (c.vib && (!c.vibs || c.vibs.indexOf(c.vib) < 0)) { try { c.vib.stop(stopAt); } catch (e) {} }
           setTimeout(function () { try { c.out.disconnect(); } catch (e) {} }, (fadeSec || 0.4) * 1000 + 400);
         } catch (e) {}
       }
-      // ヒット成功：短いヒット音とは別層で、持続する詠唱を1歩進める
+      // ヒット成功：詠唱はバックで流れ続けているので、ループが生きていることだけ保証する
       function chantNote() {
-        if (!settings.sound || settings.chorus === "off" || !audioCtx) return;
-        if (chorusBus) chorusBus.gain.setTargetAtTime(chorusLevel(), audioCtx.currentTime, 0.08);
-        syncDelay();
-        chantStep++;
-        if (!chant) startChant(); else glideChant();
-        scheduleChantRelease();
+        if (!chantActive || !chant) startChantLoop();
       }
-      // ミス：詠唱をすばやく弱めて止める
+      // ミス：長い声（土台）は止めず触らない。短い声だけ一瞬沈めて戻す
       function chantMiss() {
-        if (!chant) return;
-        stopChant(0.16);
+        if (!chant || !audioCtx || !chant.shortGain) return;
+        var t = audioCtx.currentTime;
+        try {
+          chant.shortGain.gain.cancelScheduledValues(t);
+          chant.shortGain.gain.setTargetAtTime(SHORT_LEVEL * 0.22, t, 0.03);
+          chant.shortGain.gain.setTargetAtTime(SHORT_LEVEL, t + 0.18, 0.24);
+        } catch (e) {}
       }
 
       // ----- ヒット音（全パターン シンセ生成） -----
@@ -843,60 +1078,72 @@
         src.connect(f); f.connect(g); g.connect(hitBus);
         src.start(t); src.stop(t + dur + 0.02);
       }
-      // 判定とコンボでピッチと明るさが少し上がる（アタックは常に短く保つ）
-      function hitPitch(kind) {
-        var base = kind === "perfect" ? 1.13 : kind === "great" ? 1.0 : 0.93;
-        var comboK = S ? Math.min(S.combo, 40) * 0.0035 : 0;
-        return base * (1 + comboK);
+      // 判定とコンボでピッチは少しだけ上がるが、低域中心は崩さない（アタックは短く太く）
+      // 割り込みノーツ（2音節目）：「ざい型」は従来どおり全音上げ。
+      // 「切る型」は旋律的な全音上げをやめ、音程を変えない（短く乾いた音は
+      // playHitPattern 側の専用分岐で作る）
+      function hitPitch(kind, isSub, subType) {
+        var base = kind === "perfect" ? 1.06 : kind === "great" ? 1.0 : 0.96;
+        var comboK = S ? Math.min(S.combo, 40) * 0.0015 : 0;
+        var subLift = isSub && subType !== "cut" ? Math.pow(2, 2 / 12) : 1;
+        return base * (1 + comboK) * subLift;
       }
-      var HIT_PATTERNS = ["voice", "mokugyo", "bell", "crystal", "drum"];
+      var HIT_PATTERNS = ["kick", "bass", "tom", "snare", "wood"];
       function resolveHitPattern() {
         if (settings.hitSound === "random") return HIT_PATTERNS[Math.floor(Math.random() * HIT_PATTERNS.length)];
         return settings.hitSound;
       }
-      function playHitPattern(pattern, kind) {
+      function playHitPattern(pattern, kind, isSub, subType) {
         if (!audioCtx || !hitBus) return;
-        var pf = hitPitch(kind);
-        var bright = kind === "perfect" ? 1.15 : kind === "good" ? 0.9 : 1;
-        if (pattern === "voice") {
-          // 僧声：短いフォルマント母音（鋸波→帯域フィルタ2段）
+        var pf = hitPitch(kind, isSub, subType);
+        if (isSub && subType === "cut") {
+          // 切る型の割り込み：短く乾いた音。アタックを立て、減衰はごく短く、
+          // 音程の旋律的な変化は付けない（pf に全音上げは含まれない）
+          toneHit({ freq: 330 * pf, freqEnd: 205, dur: 0.07, vol: 0.55, type: "triangle", attack: 0.001 });
+          toneHit({ freq: 185 * pf, freqEnd: 118, dur: 0.055, vol: 0.34, attack: 0.001 });
+          noiseHit(2600, 1.6, 0.028, 0.24);
+          return;
+        }
+        if (pattern === "kick") {
+          // キック：正弦波のピッチドロップ＋ごく短いクリック
+          toneHit({ freq: 165 * pf, freqEnd: 43, dur: 0.30, vol: 0.85 });
+          toneHit({ freq: 84 * pf, freqEnd: 40, dur: 0.34, vol: 0.40 });
+          noiseHit(750, 1.1, 0.025, 0.12);
+        } else if (pattern === "bass") {
+          // ベース：ローパス鋸波＋矩形波＋サブ正弦の短いプラック（基音 E2）
           var t = audioCtx.currentTime;
-          var v = VOWELS[(chantStep + 1) % VOWELS.length];
-          var o = audioCtx.createOscillator(); o.type = "sawtooth";
-          o.frequency.setValueAtTime(185 * pf, t);
-          o.frequency.exponentialRampToValueAtTime(150 * pf, t + 0.16);
+          var f0 = 82.41 * pf;
+          var flt = audioCtx.createBiquadFilter(); flt.type = "lowpass"; flt.Q.value = 7;
+          flt.frequency.setValueAtTime(560, t);
+          flt.frequency.exponentialRampToValueAtTime(170, t + 0.20);
           var g = audioCtx.createGain();
           g.gain.setValueAtTime(0, t);
-          g.gain.linearRampToValueAtTime(0.30, t + 0.006);
-          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.20);
-          [0, 1].forEach(function (fi) {
-            var f = audioCtx.createBiquadFilter();
-            f.type = "bandpass"; f.frequency.value = v[fi] * bright * 1.6; f.Q.value = 4.5;
-            var fg = audioCtx.createGain(); fg.gain.value = fi ? 0.5 : 1;
-            o.connect(f); f.connect(fg); fg.connect(g);
-          });
-          g.connect(hitBus);
-          o.start(t); o.stop(t + 0.26);
-        } else if (pattern === "mokugyo") {
-          toneHit({ freq: 640 * pf, freqEnd: 235, dur: 0.085, vol: 0.42, type: "triangle" });
-          noiseHit(2100 * bright, 7, 0.045, 0.22);
-        } else if (pattern === "bell") {
-          var bb = 1175 * pf;
-          toneHit({ freq: bb, dur: 0.55, vol: 0.20 });
-          toneHit({ freq: bb * 2.74, dur: 0.32, vol: 0.075 });
-          toneHit({ freq: bb * 5.43, dur: 0.16, vol: 0.032 });
-        } else if (pattern === "crystal") {
-          var cb = 1568 * pf;
-          toneHit({ freq: cb, dur: 0.38, vol: 0.20 });
-          toneHit({ freq: cb * 2, dur: 0.26, vol: 0.09 });
-          toneHit({ freq: cb * 3.01, dur: 0.15, vol: 0.045 });
-          toneHit({ freq: cb * 0.5, dur: 0.2, vol: 0.05 });
-        } else if (pattern === "drum") {
-          toneHit({ freq: 155 * pf, freqEnd: 52, dur: 0.27, vol: 0.5 });
-          noiseHit(900 * bright, 1.2, 0.03, 0.10);
-        }
-        if (kind === "perfect" && pattern !== "voice") {
-          toneHit({ freq: 1318 * pf, dur: 0.22, vol: 0.07 });
+          g.gain.linearRampToValueAtTime(0.52, t + 0.005);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + 0.27);
+          flt.connect(g); g.connect(hitBus);
+          var o1 = audioCtx.createOscillator(); o1.type = "sawtooth"; o1.frequency.value = f0;
+          o1.connect(flt); o1.start(t); o1.stop(t + 0.30);
+          var o2 = audioCtx.createOscillator(); o2.type = "square"; o2.frequency.value = f0;
+          var g2 = audioCtx.createGain(); g2.gain.value = 0.45;
+          o2.connect(g2); g2.connect(flt); o2.start(t); o2.stop(t + 0.30);
+          var sub = audioCtx.createOscillator(); sub.type = "sine"; sub.frequency.value = f0;
+          var gs = audioCtx.createGain(); gs.gain.value = 0.7;
+          sub.connect(gs); gs.connect(g); sub.start(t); sub.stop(t + 0.30);
+        } else if (pattern === "tom") {
+          // タム：低〜中域の膜音2音を重ねる
+          toneHit({ freq: 196 * pf, freqEnd: 98, dur: 0.26, vol: 0.50 });
+          toneHit({ freq: 147 * pf, freqEnd: 73, dur: 0.32, vol: 0.45 });
+          noiseHit(600, 1.4, 0.03, 0.08);
+        } else if (pattern === "snare") {
+          // スネア：ノイズ＋低いボディ
+          noiseHit(1500, 0.9, 0.13, 0.30);
+          noiseHit(430, 1.2, 0.10, 0.18);
+          toneHit({ freq: 190 * pf, freqEnd: 105, dur: 0.14, vol: 0.38, type: "triangle" });
+        } else if (pattern === "wood") {
+          // 低木魚：低く落とした木質ノック
+          toneHit({ freq: 250 * pf, freqEnd: 118, dur: 0.11, vol: 0.60, type: "triangle" });
+          toneHit({ freq: 170 * pf, freqEnd: 95, dur: 0.14, vol: 0.30 });
+          noiseHit(950, 6, 0.035, 0.16);
         }
       }
       function previewHitSound() {
@@ -905,7 +1152,7 @@
         if (!audioCtx) return;
         playHitPattern(resolveHitPattern(), "great");
       }
-      function playJudge(kind) {
+      function playJudge(kind, isSub, subType) {
         if (!settings.sound) return;
         ensureAudio();
         if (!audioCtx) return;
@@ -914,7 +1161,7 @@
           chantMiss();
           return;
         }
-        playHitPattern(resolveHitPattern(), kind);
+        playHitPattern(resolveHitPattern(), kind, isSub, subType);
         chantNote();
       }
       function vibrateHit() { if (settings.vib === "hit" && navigator.vibrate) navigator.vibrate(15); }
@@ -968,7 +1215,7 @@
         S.shockwaves.push({ t0: S.now, hue: best.hue, color: color, strength: kind === "perfect" ? 1.35 : kind === "great" ? 1 : 0.75 });
         if (S.shockwaves.length > 6) S.shockwaves.shift();
         burst(GEO.cx, GEO.cy, best.hue, kind === "perfect" ? 26 : 16, kind === "perfect" ? 1.3 : 1);
-        playJudge(kind);
+        playJudge(kind, best.isSub, best.subType);
         vibrateHit();
         updateHUD(true);
       }
@@ -994,11 +1241,12 @@
       }
 
       // ---------- HUD ----------
-      var lastScoreShown = -1, lastComboShown = -1, lastLifeShown = "";
+      var lastScoreShown = -1, lastComboShown = -1, lastLifeShown = "", lastBpmShown = -1;
       function updateHUD(bump) {
         if (S.score !== lastScoreShown) { scoreEl.textContent = S.score.toLocaleString("ja-JP"); lastScoreShown = S.score; }
         var bpmNow = Math.round(currentBpm());
-        var sub = diff().label + " ・ " + bpmNow + " BPM";
+        if (bpmNow !== lastBpmShown) { bpmEl.textContent = String(bpmNow); lastBpmShown = bpmNow; }
+        var sub = diff().label + (syllablePatternEnabled() ? " ・ 音節パターン" : " ・ 木魚ストリーム");
         if (subInfoEl.textContent !== sub) subInfoEl.textContent = sub;
         var lim = diff().missLimit;
         var lifeTxt = isFinite(lim) ? (S.counts.miss + " / " + lim) : (S.counts.miss + " ・ ∞");
@@ -1035,6 +1283,27 @@
         c.quadraticCurveTo((r0 + r1) / 2, -w, r0, 0);
         c.closePath();
       }
+      // 葉：中心脈つきの細長い葉（あかるいテーマ外周用）
+      function leafPath(c, r0, r1, w) {
+        c.beginPath(); c.moveTo(r0, 0);
+        c.quadraticCurveTo((r0 + r1) / 2, w, r1, 0);
+        c.quadraticCurveTo((r0 + r1) / 2, -w * 0.55, r0, 0);
+        c.closePath();
+      }
+      // 鋭い三角花弁（ブラックテーマ用）
+      function spikePath(c, r0, r1, w) {
+        c.beginPath(); c.moveTo(r0, -w); c.lineTo(r1, 0); c.lineTo(r0, w); c.closePath();
+      }
+      function diamondPath(c, rc, len, wid) {
+        c.beginPath(); c.moveTo(rc - len, 0); c.lineTo(rc, wid); c.lineTo(rc + len, 0); c.lineTo(rc, -wid); c.closePath();
+      }
+      function ringDots(c, radius, n, dotR, fill) {
+        for (var di = 0; di < n; di++) {
+          var da = (di / n) * Math.PI * 2;
+          c.beginPath(); c.arc(Math.cos(da) * radius, Math.sin(da) * radius, dotR, 0, Math.PI * 2);
+          c.fillStyle = fill; c.fill();
+        }
+      }
       function hslToRgb(h, s, l) {
         h = ((h % 360) + 360) % 360 / 360; s /= 100; l /= 100;
         var r, g, b;
@@ -1046,22 +1315,41 @@
         }
         return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
       }
-      // 層の色：プリセット色相＋色相シフト＋RGBティントを寄せる
-      // ブラック版のネオン配色 [外周=電光シアン, 蓮弁=マゼンタ, 幾何=アシッドグリーン, 蓮弁中=UV紫, 芯=ホットピンク]
-      var NEON_HUES = [187, 315, 96, 268, 335];
-      function layerColor(layerIdx, alpha) {
+      // 層の色：あかるい＝民芸色（ターコイズ/マゼンタ/オレンジ/黄/緑、原色寄り）、
+      // ブラック＝蛍光色（グリーン/シアン/マゼンタ/ロイヤルブルー/オレンジ）。
+      // カラープリセットは色相のずらしとして両テーマに効き、RGB／色相シフトもそのまま効く。
+      var FOLK_HUES = [174, 322, 28, 48, 96, 262, 200, 0];
+      var NEON_HUES = [110, 315, 28, 230, 187, 96, 335, 268];
+      var FOLK_OUTLINE = "#3a0a6b", FOLK_OUTLINE2 = "#0b4d2e";
+      function themedHue(layerIdx, salt) {
         var preset = COLOR_PRESETS[settings.colorPreset] || COLOR_PRESETS.rainbow;
-        var black = PAL && PAL.black;
-        var dark = PAL ? PAL.lighter : true;
-        // ブラックではチルのプリセット色相をネオン側へ読み替える（模様・RGB・色相シフトはそのまま効く）
-        var h = (black ? NEON_HUES[layerIdx % NEON_HUES.length] : preset.hues[layerIdx % preset.hues.length]) + settings.hueShift;
-        var s = black ? 100 : (preset.sat !== null ? preset.sat : (dark ? 92 : 78));
-        var l = black ? 62 : (dark ? 64 : 44);
+        var base = PAL && PAL.black ? NEON_HUES[(layerIdx + (salt || 0)) % NEON_HUES.length] : FOLK_HUES[(layerIdx + (salt || 0)) % FOLK_HUES.length];
+        // プリセットの色相を基準からの差分として薄く重ねる（テーマの配色自体は崩さない）
+        var ref = COLOR_PRESETS.rainbow.hues[layerIdx % 5];
+        var shift = (preset.hues[layerIdx % preset.hues.length] - ref) * 0.45;
+        if (preset.sat !== null) shift *= 0.4; // 墨プリセットは色相差が無いのでほぼ民芸／ネオンのまま
+        return base + shift + settings.hueShift;
+      }
+      function rgbString(h, s, l, alpha) {
         var rgb = hslToRgb(h, s, l);
         rgb[0] = Math.max(0, Math.min(255, rgb[0] + settings.tintR * 1.6));
         rgb[1] = Math.max(0, Math.min(255, rgb[1] + settings.tintG * 1.6));
         rgb[2] = Math.max(0, Math.min(255, rgb[2] + settings.tintB * 1.6));
         return "rgba(" + Math.round(rgb[0]) + "," + Math.round(rgb[1]) + "," + Math.round(rgb[2]) + "," + alpha + ")";
+      }
+      function layerColor(layerIdx, alpha) {
+        if (PAL && PAL.black) return rgbString(themedHue(layerIdx, 0), 100, 56, alpha);
+        var preset = COLOR_PRESETS[settings.colorPreset] || COLOR_PRESETS.rainbow;
+        var s = preset.sat !== null ? Math.max(55, preset.sat + 45) : 96;
+        return rgbString(themedHue(layerIdx, 0), s, 50, alpha);
+      }
+      function motifColor(layerIdx, salt, alpha, light) {
+        if (PAL && PAL.black) return rgbString(themedHue(layerIdx, salt), 100, light || 56, alpha);
+        return rgbString(themedHue(layerIdx, salt), 96, light || 50, alpha);
+      }
+      function outlineColor(alpha) {
+        if (PAL && PAL.black) return "rgba(1,2,16," + alpha + ")";
+        return "rgba(58,10,107," + alpha + ")";
       }
       function buildMandala() {
         mandalaLayers = [];
@@ -1069,6 +1357,7 @@
         var R = Math.max(130, Math.min(W, H) * 0.56);
         MANDALA_R = R;
         var pat = settings.patternPreset;
+        var black = !!PAL.black;
         function mk(speed) {
           var cv = document.createElement("canvas");
           var s = Math.ceil(R * 2);
@@ -1082,120 +1371,264 @@
         var showGeo = pat !== "lotus";
         var showPetals = pat !== "geo" && pat !== "jewel";
         var showJewels = true;
-        // 層0：外周の輪と宝珠ドット
+        var LW = black ? 1.1 : 1.7; // 輪郭の太さ：あかるい＝濃い紫の太め、ブラック＝暗い細線で色面を割る
+        if (!black) {
+          // ============ あかるい：フォーク装飾曼荼羅（層ごとにモチーフを変える） ============
+          // 層0：外周＝スカラップ縁＋葉の冠＋赤い実ドット
+          var f0 = mk(0.55);
+          // スカラップ（半円の波縁）
+          var scN = 36;
+          for (i = 0; i < scN; i++) {
+            a = (i / scN) * Math.PI * 2;
+            f0.beginPath(); f0.arc(Math.cos(a) * R * 0.928, Math.sin(a) * R * 0.928, R * 0.05, 0, Math.PI * 2);
+            f0.fillStyle = motifColor(0, i % 3, 0.95); f0.fill();
+            f0.strokeStyle = outlineColor(0.9); f0.lineWidth = LW; f0.stroke();
+          }
+          f0.beginPath(); f0.arc(0, 0, R * 0.945, 0, Math.PI * 2); f0.strokeStyle = outlineColor(0.95); f0.lineWidth = 2.2; f0.stroke();
+          f0.beginPath(); f0.arc(0, 0, R * 0.90, 0, Math.PI * 2); f0.strokeStyle = motifColor(3, 1, 0.9); f0.lineWidth = 2.6; f0.stroke();
+          if (showJewels) {
+            // 葉の冠：緑の葉＋中心脈、葉の間に赤い実
+            var leafN = pat === "jewel" ? 18 : 24;
+            for (i = 0; i < leafN; i++) {
+              f0.save(); f0.rotate((i / leafN) * Math.PI * 2);
+              leafPath(f0, R * 0.80, R * 0.915, R * 0.055);
+              f0.fillStyle = motifColor(4, i % 2, 0.95, 42); f0.fill();
+              f0.strokeStyle = FOLK_OUTLINE2; f0.lineWidth = LW; f0.stroke();
+              f0.beginPath(); f0.moveTo(R * 0.815, 0); f0.lineTo(R * 0.895, 0);
+              f0.strokeStyle = "rgba(255,253,230,0.85)"; f0.lineWidth = 1.1; f0.stroke();
+              f0.restore();
+              a = ((i + 0.5) / leafN) * Math.PI * 2;
+              f0.beginPath(); f0.arc(Math.cos(a) * R * 0.855, Math.sin(a) * R * 0.855, R * 0.014, 0, Math.PI * 2);
+              f0.fillStyle = motifColor(7, 0, 1, 48); f0.fill();
+              f0.strokeStyle = outlineColor(0.8); f0.lineWidth = 1; f0.stroke();
+            }
+            ringDots(f0, R * 0.775, 48, R * 0.008, motifColor(1, 2, 0.95));
+          }
+          if (pat === "jewel") {
+            [0.72, 0.64].forEach(function (rr, idx) {
+              f0.beginPath(); f0.arc(0, 0, R * rr, 0, Math.PI * 2);
+              f0.strokeStyle = motifColor(idx, 3, 0.95); f0.lineWidth = 2; f0.stroke();
+            });
+            ringDots(f0, R * 0.68, 32, R * 0.016, motifColor(2, 0, 0.95));
+          }
+          // 層1：大きな花弁（内側に小花弁＋縞＋点）
+          var f1 = mk(-0.38);
+          if (showPetals) {
+            var n1 = pat === "dense" ? 32 : pat === "lotus" ? 28 : 24;
+            for (i = 0; i < n1; i++) {
+              f1.save(); f1.rotate((i / n1) * Math.PI * 2);
+              petalPath(f1, R * 0.585, R * 0.80, R * 0.085);
+              f1.fillStyle = motifColor(1, i % 4, 0.96); f1.fill();
+              f1.strokeStyle = outlineColor(0.95); f1.lineWidth = LW; f1.stroke();
+              petalPath(f1, R * 0.63, R * 0.755, R * 0.048);
+              f1.fillStyle = motifColor(1, (i % 4) + 2, 0.9, 62); f1.fill();
+              f1.strokeStyle = outlineColor(0.55); f1.lineWidth = 1; f1.stroke();
+              f1.beginPath(); f1.arc(R * 0.685, 0, R * 0.011, 0, Math.PI * 2);
+              f1.fillStyle = "#fffbe8"; f1.fill();
+              f1.restore();
+            }
+            // 花弁の谷に小ドット列
+            ringDots(f1, R * 0.565, n1, R * 0.009, motifColor(2, 1, 0.95));
+          }
+          f1.beginPath(); f1.arc(0, 0, R * 0.585, 0, Math.PI * 2); f1.strokeStyle = outlineColor(0.9); f1.lineWidth = 2; f1.stroke();
+          // 層2：幾何＝菱形＋格子点＋渦巻き風の小円
+          var f2 = mk(0.85);
+          if (showGeo) {
+            for (i = 0; i < 16; i++) {
+              f2.save(); f2.rotate((i / 16) * Math.PI * 2);
+              diamondPath(f2, R * 0.485, R * 0.075, R * 0.052);
+              f2.fillStyle = motifColor(2, i % 3, 0.96); f2.fill();
+              f2.strokeStyle = outlineColor(0.95); f2.lineWidth = LW; f2.stroke();
+              f2.beginPath(); f2.arc(R * 0.485, 0, R * 0.013, 0, Math.PI * 2);
+              f2.fillStyle = "#fffbe8"; f2.fill();
+              f2.restore();
+              a = ((i + 0.5) / 16) * Math.PI * 2;
+              f2.beginPath(); f2.arc(Math.cos(a) * R * 0.485, Math.sin(a) * R * 0.485, R * 0.02, 0, Math.PI * 2);
+              f2.strokeStyle = motifColor(5, 0, 0.95); f2.lineWidth = 1.6; f2.stroke();
+              f2.beginPath(); f2.arc(Math.cos(a) * R * 0.485, Math.sin(a) * R * 0.485, R * 0.008, 0, Math.PI * 2);
+              f2.strokeStyle = motifColor(5, 2, 0.9); f2.lineWidth = 1.1; f2.stroke();
+            }
+          } else {
+            ringDots(f2, R * 0.485, 40, R * 0.012, motifColor(2, 0, 0.95));
+          }
+          f2.beginPath(); f2.arc(0, 0, R * 0.415, 0, Math.PI * 2); f2.strokeStyle = outlineColor(0.85); f2.lineWidth = 1.8; f2.stroke();
+          f2.beginPath(); f2.arc(0, 0, R * 0.555, 0, Math.PI * 2); f2.strokeStyle = motifColor(0, 1, 0.8); f2.lineWidth = 1.4; f2.stroke();
+          // 層3：中花弁（縞入り）＋ドット縁
+          var f3 = mk(-1.2);
+          if (showPetals) {
+            var n3 = pat === "dense" ? 24 : pat === "lotus" ? 20 : 16;
+            for (i = 0; i < n3; i++) {
+              f3.save(); f3.rotate((i / n3) * Math.PI * 2);
+              petalPath(f3, R * 0.27, R * 0.415, R * 0.062);
+              f3.fillStyle = motifColor(3, i % 3, 0.96); f3.fill();
+              f3.strokeStyle = outlineColor(0.95); f3.lineWidth = LW; f3.stroke();
+              f3.beginPath(); f3.moveTo(R * 0.30, 0); f3.lineTo(R * 0.385, 0);
+              f3.strokeStyle = "rgba(255,251,232,0.8)"; f3.lineWidth = 1.2; f3.stroke();
+              f3.restore();
+            }
+            if (pat === "dense" || pat === "lotus") {
+              for (i = 0; i < n3; i++) {
+                f3.save(); f3.rotate(((i + 0.5) / n3) * Math.PI * 2);
+                petalPath(f3, R * 0.30, R * 0.385, R * 0.04);
+                f3.fillStyle = motifColor(3, 4, 0.7, 60); f3.fill();
+                f3.strokeStyle = outlineColor(0.6); f3.lineWidth = 1.1; f3.stroke();
+                f3.restore();
+              }
+            }
+          }
+          ringDots(f3, R * 0.255, 36, R * 0.008, motifColor(6, 0, 0.95));
+          f3.beginPath(); f3.arc(0, 0, R * 0.27, 0, Math.PI * 2); f3.strokeStyle = outlineColor(0.9); f3.lineWidth = 1.8; f3.stroke();
+          // 層4：花芯＝8弁の花＋中心は落ち着いた淡色の円（判定点の可読性）
+          var f4 = mk(1.6);
+          if (pat !== "jewel") {
+            for (i = 0; i < 8; i++) {
+              f4.save(); f4.rotate((i / 8) * Math.PI * 2);
+              petalPath(f4, R * 0.05, R * 0.255, R * 0.068);
+              f4.fillStyle = motifColor(4, i % 3, 0.96); f4.fill();
+              f4.strokeStyle = outlineColor(0.95); f4.lineWidth = LW; f4.stroke();
+              f4.beginPath(); f4.arc(R * 0.165, 0, R * 0.012, 0, Math.PI * 2);
+              f4.fillStyle = motifColor(0, 2, 0.95); f4.fill();
+              f4.restore();
+            }
+          } else {
+            ringDots(f4, R * 0.17, 16, R * 0.02, motifColor(4, 0, 0.95));
+          }
+          f4.beginPath(); f4.arc(0, 0, R * 0.105, 0, Math.PI * 2);
+          f4.fillStyle = "#fff6d8"; f4.fill();
+          f4.strokeStyle = outlineColor(0.9); f4.lineWidth = 1.8; f4.stroke();
+          f4.beginPath(); f4.arc(0, 0, R * 0.048, 0, Math.PI * 2);
+          f4.fillStyle = motifColor(1, 0, 0.95); f4.fill();
+          f4.strokeStyle = outlineColor(0.8); f4.lineWidth = 1.2; f4.stroke();
+          return;
+        }
+        // ============ ブラック：ネオン幾何学カレイドスコープ（硬い辺と反復） ============
+        // 層0：外周＝ビーズドット＋菱形リング＋三角縁
         var c0 = mk(0.55);
-        c0.strokeStyle = layerColor(0, 0.55); c0.lineWidth = 2.2;
-        c0.beginPath(); c0.arc(0, 0, R * 0.985, 0, Math.PI * 2); c0.stroke();
-        c0.lineWidth = 1.2; c0.beginPath(); c0.arc(0, 0, R * 0.925, 0, Math.PI * 2); c0.stroke();
+        c0.beginPath(); c0.arc(0, 0, R * 0.985, 0, Math.PI * 2); c0.strokeStyle = motifColor(0, 4, 0.95); c0.lineWidth = 2; c0.stroke();
         if (showJewels) {
-          for (i = 0; i < 60; i++) {
-            a = (i / 60) * Math.PI * 2;
-            c0.beginPath(); c0.arc(Math.cos(a) * R * 0.955, Math.sin(a) * R * 0.955, i % 2 ? 2.4 : 4.2, 0, Math.PI * 2);
-            c0.fillStyle = layerColor(i % 2 ? 0 : 4, 0.85); c0.fill();
+          ringDots(c0, R * 0.955, 60, R * 0.011, motifColor(0, 0, 1, 62));
+          for (i = 0; i < 30; i++) {
+            c0.save(); c0.rotate((i / 30) * Math.PI * 2);
+            diamondPath(c0, R * 0.905, R * 0.032, R * 0.020);
+            c0.fillStyle = motifColor(0, i % 5, 1); c0.fill();
+            c0.strokeStyle = outlineColor(0.9); c0.lineWidth = LW; c0.stroke();
+            c0.restore();
           }
-          for (i = 0; i < 12; i++) {
-            a = (i / 12) * Math.PI * 2;
-            c0.beginPath(); c0.arc(Math.cos(a) * R * 0.875, Math.sin(a) * R * 0.875, R * 0.016, 0, Math.PI * 2);
-            c0.strokeStyle = layerColor(0, 0.6); c0.lineWidth = 1.6; c0.stroke();
-          }
+          ringDots(c0, R * 0.855, 40, R * 0.009, motifColor(0, 2, 0.95));
         }
         if (pat === "jewel") {
-          // 宝珠：同心の輪を増やす
-          [0.80, 0.68, 0.56].forEach(function (rr, idx) {
+          [0.80, 0.70, 0.60].forEach(function (rr, idx) {
             c0.beginPath(); c0.arc(0, 0, R * rr, 0, Math.PI * 2);
-            c0.strokeStyle = layerColor(idx % 5, 0.4); c0.lineWidth = 1.4; c0.stroke();
+            c0.strokeStyle = motifColor(idx, 1, 0.8); c0.lineWidth = 1.6; c0.stroke();
           });
-          for (i = 0; i < 24; i++) {
-            a = (i / 24) * Math.PI * 2;
-            c0.beginPath(); c0.arc(Math.cos(a) * R * 0.74, Math.sin(a) * R * 0.74, R * 0.02, 0, Math.PI * 2);
-            c0.fillStyle = layerColor(2, 0.8); c0.fill();
-          }
+          ringDots(c0, R * 0.75, 36, R * 0.014, motifColor(2, 0, 1));
         }
-        // 層1：蓮弁（大）
+        // 層1：鋭い花弁＝三角スパイクと菱形葉の交互リング
         var c1 = mk(-0.38);
         if (showPetals) {
-          var n1 = pat === "dense" ? 32 : pat === "lotus" ? 28 : 24;
-          for (i = 0; i < n1; i++) {
-            c1.save(); c1.rotate((i / n1) * Math.PI * 2);
-            petalPath(c1, R * 0.60, R * 0.905, R * 0.082);
-            c1.fillStyle = layerColor(1, 0.38); c1.fill();
-            c1.strokeStyle = layerColor(1, 0.85); c1.lineWidth = 1.4; c1.stroke();
+          var m1 = pat === "dense" ? 32 : pat === "lotus" ? 28 : 24;
+          for (i = 0; i < m1; i++) {
+            c1.save(); c1.rotate((i / m1) * Math.PI * 2);
+            spikePath(c1, R * 0.60, R * 0.845, R * 0.052);
+            c1.fillStyle = motifColor(1, i % 4, 1); c1.fill();
+            c1.strokeStyle = outlineColor(0.95); c1.lineWidth = LW; c1.stroke();
+            c1.restore();
+            c1.save(); c1.rotate(((i + 0.5) / m1) * Math.PI * 2);
+            diamondPath(c1, R * 0.70, R * 0.055, R * 0.030);
+            c1.fillStyle = motifColor(1, (i % 4) + 3, 0.95); c1.fill();
+            c1.strokeStyle = outlineColor(0.9); c1.lineWidth = LW; c1.stroke();
             c1.restore();
           }
         }
-        c1.strokeStyle = layerColor(1, 0.6); c1.lineWidth = 1.6;
-        c1.beginPath(); c1.arc(0, 0, R * 0.60, 0, Math.PI * 2); c1.stroke();
-        // 層2：幾何の菱形
+        c1.beginPath(); c1.arc(0, 0, R * 0.60, 0, Math.PI * 2); c1.strokeStyle = motifColor(1, 4, 0.9); c1.lineWidth = 1.8; c1.stroke();
+        ringDots(c1, R * 0.575, 36, R * 0.008, motifColor(1, 1, 0.95));
+        // 層2：幾何＝菱形ラティス＋三角＋ビーズ
         var c2 = mk(0.85);
         if (showGeo) {
-          for (i = 0; i < 12; i++) {
-            c2.save(); c2.rotate((i / 12) * Math.PI * 2);
-            c2.beginPath();
-            c2.moveTo(R * 0.50, 0); c2.lineTo(R * 0.63, R * 0.075); c2.lineTo(R * 0.78, 0); c2.lineTo(R * 0.63, -R * 0.075);
-            c2.closePath();
-            c2.fillStyle = layerColor(2, 0.5); c2.fill();
-            c2.strokeStyle = layerColor(2, 0.9); c2.lineWidth = 1.3; c2.stroke();
+          for (i = 0; i < 16; i++) {
+            c2.save(); c2.rotate((i / 16) * Math.PI * 2);
+            diamondPath(c2, R * 0.475, R * 0.085, R * 0.058);
+            c2.fillStyle = motifColor(2, i % 4, 1); c2.fill();
+            c2.strokeStyle = outlineColor(0.95); c2.lineWidth = 1.3; c2.stroke();
+            diamondPath(c2, R * 0.475, R * 0.042, R * 0.028);
+            c2.fillStyle = motifColor(2, (i % 4) + 2, 1, 64); c2.fill();
             c2.restore();
-            a = ((i + 0.5) / 12) * Math.PI * 2;
-            c2.beginPath(); c2.arc(Math.cos(a) * R * 0.64, Math.sin(a) * R * 0.64, R * 0.02, 0, Math.PI * 2);
-            c2.fillStyle = layerColor(2, 0.8); c2.fill();
+            a = ((i + 0.5) / 16) * Math.PI * 2;
+            c2.beginPath(); c2.arc(Math.cos(a) * R * 0.475, Math.sin(a) * R * 0.475, R * 0.011, 0, Math.PI * 2);
+            c2.fillStyle = motifColor(2, 5, 1, 66); c2.fill();
+          }
+          // 内側の三角リング
+          for (i = 0; i < 24; i++) {
+            c2.save(); c2.rotate((i / 24) * Math.PI * 2);
+            spikePath(c2, R * 0.385, R * 0.435, R * 0.026);
+            c2.fillStyle = motifColor(2, (i % 3) + 1, 0.95); c2.fill();
+            c2.restore();
           }
         }
-        c2.strokeStyle = layerColor(2, 0.5); c2.lineWidth = 1.2;
-        c2.beginPath(); c2.arc(0, 0, R * 0.50, 0, Math.PI * 2); c2.stroke();
-        // 層3：蓮弁（中）
+        c2.beginPath(); c2.arc(0, 0, R * 0.555, 0, Math.PI * 2); c2.strokeStyle = motifColor(2, 0, 0.7); c2.lineWidth = 1.4; c2.stroke();
+        c2.beginPath(); c2.arc(0, 0, R * 0.375, 0, Math.PI * 2); c2.strokeStyle = motifColor(2, 3, 0.8); c2.lineWidth = 1.4; c2.stroke();
+        // 層3：棘花弁（逆回転層）
         var c3 = mk(-1.2);
         if (showPetals) {
-          var n3 = pat === "dense" ? 24 : pat === "lotus" ? 20 : 16;
-          for (i = 0; i < n3; i++) {
-            c3.save(); c3.rotate((i / n3) * Math.PI * 2);
-            petalPath(c3, R * 0.29, R * 0.545, R * 0.068);
-            c3.fillStyle = layerColor(3, 0.42); c3.fill();
-            c3.strokeStyle = layerColor(3, 0.9); c3.lineWidth = 1.4; c3.stroke();
+          var m3 = pat === "dense" ? 24 : pat === "lotus" ? 20 : 16;
+          for (i = 0; i < m3; i++) {
+            c3.save(); c3.rotate((i / m3) * Math.PI * 2);
+            spikePath(c3, R * 0.245, R * 0.375, R * 0.055);
+            c3.fillStyle = motifColor(3, i % 4, 1); c3.fill();
+            c3.strokeStyle = outlineColor(0.95); c3.lineWidth = LW; c3.stroke();
             c3.restore();
           }
           if (pat === "dense" || pat === "lotus") {
-            for (i = 0; i < n3; i++) {
-              c3.save(); c3.rotate(((i + 0.5) / n3) * Math.PI * 2);
-              petalPath(c3, R * 0.33, R * 0.50, R * 0.045);
-              c3.strokeStyle = layerColor(3, 0.55); c3.lineWidth = 1.1; c3.stroke();
+            for (i = 0; i < m3; i++) {
+              c3.save(); c3.rotate(((i + 0.5) / m3) * Math.PI * 2);
+              diamondPath(c3, R * 0.295, R * 0.038, R * 0.024);
+              c3.fillStyle = motifColor(3, 5, 0.95); c3.fill();
+              c3.strokeStyle = outlineColor(0.85); c3.lineWidth = 1; c3.stroke();
               c3.restore();
             }
           }
         }
-        c3.strokeStyle = layerColor(3, 0.65); c3.lineWidth = 1.6;
-        c3.beginPath(); c3.arc(0, 0, R * 0.29, 0, Math.PI * 2); c3.stroke();
-        // 層4：芯
+        ringDots(c3, R * 0.225, 28, R * 0.008, motifColor(3, 2, 1, 64));
+        c3.beginPath(); c3.arc(0, 0, R * 0.245, 0, Math.PI * 2); c3.strokeStyle = motifColor(3, 0, 0.9); c3.lineWidth = 1.6; c3.stroke();
+        // 層4：芯＝サンバースト放射＋発光シンボル（汎用の種字グリフ）
         var c4 = mk(1.6);
-        if (pat !== "jewel") {
-          for (i = 0; i < 8; i++) {
-            c4.save(); c4.rotate((i / 8) * Math.PI * 2);
-            petalPath(c4, R * 0.055, R * 0.285, R * 0.072);
-            c4.fillStyle = layerColor(4, 0.5); c4.fill();
-            c4.strokeStyle = layerColor(4, 0.9); c4.lineWidth = 1.4; c4.stroke();
-            c4.restore();
-          }
+        for (i = 0; i < 24; i++) {
+          c4.save(); c4.rotate((i / 24) * Math.PI * 2);
+          spikePath(c4, R * 0.075, R * 0.225, i % 2 ? R * 0.016 : R * 0.026);
+          c4.fillStyle = motifColor(4, i % 3, 1, i % 2 ? 58 : 52); c4.fill();
+          c4.restore();
         }
-        c4.beginPath(); c4.arc(0, 0, R * 0.115, 0, Math.PI * 2);
-        c4.strokeStyle = layerColor(3, 0.8); c4.lineWidth = 1.6; c4.stroke();
-        c4.beginPath(); c4.arc(0, 0, R * 0.052, 0, Math.PI * 2);
-        c4.fillStyle = layerColor(4, 0.9); c4.fill();
+        if (pat !== "jewel") {
+          c4.beginPath(); c4.arc(0, 0, R * 0.095, 0, Math.PI * 2);
+          c4.fillStyle = motifColor(4, 1, 1, 50); c4.fill();
+          c4.strokeStyle = outlineColor(0.9); c4.lineWidth = 1.4; c4.stroke();
+          c4.font = "700 " + Math.round(R * 0.11) + "px 'Noto Serif Devanagari', serif";
+          c4.textAlign = "center"; c4.textBaseline = "middle";
+          c4.fillStyle = "#eaffff"; c4.fillText("ॐ", 0, R * 0.008);
+        } else {
+          ringDots(c4, R * 0.13, 12, R * 0.016, motifColor(4, 0, 1, 62));
+        }
+        c4.beginPath(); c4.arc(0, 0, R * 0.235, 0, Math.PI * 2);
+        c4.strokeStyle = motifColor(4, 3, 0.85); c4.lineWidth = 1.5; c4.stroke();
       }
+
       if (lightScheme.addEventListener) lightScheme.addEventListener("change", function () { pickPalette(); buildMandala(); });
 
       function drawMandala(now, pulse) {
         if (!mandalaLayers.length) return;
         ctx.save();
-        if (PAL.lighter) ctx.globalCompositeOperation = "lighter";
-        var sc = reducedMotion ? 1 : 1 + 0.02 * pulse;
+        // ブラックはゆっくり膨らんで縮む呼吸スケールでトリップ感を出す（パルスと併用、振幅は小さく固定）
+        var breathe = PAL.black && !reducedMotion ? 1 + 0.035 * Math.sin(now * 0.00042) : 1;
+        var sc = (reducedMotion ? 1 : 1 + 0.02 * pulse) * breathe;
         var glitchAge = now - S.glitchAt;
         var glitching = PAL.black && glitchAge >= 0 && glitchAge < 260 && !reducedMotion;
         for (var i = 0; i < mandalaLayers.length; i++) {
           var layer = mandalaLayers[i];
-          // ブラック：同レイヤーを少し大きく薄く重ねて光の滲み（ハロー）を作る。追加は1パスだけに抑える
-          var passes = PAL.black ? [{ a: 0.34, s: 1.045 }, { a: PAL.mandalaAlpha, s: 1 }] : [{ a: PAL.mandalaAlpha, s: 1 }];
+          // ブラック：ハローは加算で薄く1パス、本体は通常合成で硬い色面を保つ。あかるいは1パスのみ
+          var passes = PAL.black ? [{ a: 0.30, s: 1.045, comp: "lighter" }, { a: PAL.mandalaAlpha, s: 1, comp: "source-over" }] : [{ a: PAL.mandalaAlpha, s: 1, comp: "source-over" }];
           for (var pi2 = 0; pi2 < passes.length; pi2++) {
             ctx.save();
+            ctx.globalCompositeOperation = passes[pi2].comp;
             ctx.translate(GEO.cx, GEO.cy);
             ctx.rotate(bgAngle * layer.speed * rotFactor() + i * 0.35);
             ctx.scale(sc * passes[pi2].s, sc * passes[pi2].s);
@@ -1241,6 +1674,15 @@
         var sc = reducedMotion ? 1 : 1 + 0.016 * pulse;
         ctx.translate(GEO.cx, GEO.cy); ctx.scale(sc, sc); ctx.translate(-GEO.cx, -GEO.cy);
         drawMandala(now, pulse);
+        if (PAL.folk) {
+          // 中心だけ落ち着かせる：クリーム色の柔らかい円で花芯とゲートの下地を静める
+          var calmR = GEO.gateR * 2.35;
+          var cg = ctx.createRadialGradient(GEO.cx, GEO.cy, 0, GEO.cx, GEO.cy, calmR);
+          cg.addColorStop(0, "rgba(255,253,240,0.62)");
+          cg.addColorStop(0.7, "rgba(255,248,220,0.30)");
+          cg.addColorStop(1, "rgba(255,248,220,0)");
+          ctx.fillStyle = cg; ctx.fillRect(GEO.cx - calmR, GEO.cy - calmR, calmR * 2, calmR * 2);
+        }
         for (var bi = 0; bi < S.beatRings.length; bi++) {
           var br = S.beatRings[bi], age = (now - br.t0) / iv;
           if (age < 0 || age > 2.2) continue;
@@ -1298,7 +1740,9 @@
           ctx.save();
           ctx.beginPath(); ctx.moveTo(GEO.cx, GEO.cy);
           ctx.lineTo(GEO.cx + ca * n.startR, GEO.cy + sa * n.startR);
-          ctx.strokeStyle = "hsla(" + n.hue + ", 95%, 68%, " + (n.missed ? 0.03 : (PAL.black ? 0.26 : 0.10)) + ")";
+          ctx.strokeStyle = PAL.folk
+            ? "hsla(" + n.hue + ", 90%, 34%, " + (n.missed ? 0.05 : 0.28) + ")"
+            : "hsla(" + n.hue + ", 95%, 68%, " + (n.missed ? 0.03 : (PAL.black ? 0.26 : 0.10)) + ")";
           ctx.lineWidth = PAL.black ? 2 : 1.5; ctx.stroke();
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
           var trailN = PAL.black ? 5 : 3; // ブラックは残像を強める
@@ -1306,21 +1750,34 @@
             var gr = pos.r + tr * (PAL.black ? 30 : 34);
             if (gr > n.startR) continue;
             ctx.font = "700 " + (20 - tr * 2) + "px 'Noto Serif Devanagari', 'M PLUS Rounded 1c', serif";
-            ctx.fillStyle = "hsla(" + n.hue + ", 100%, 70%, " + (PAL.black ? (0.08 + (trailN - tr) * 0.06) : (0.05 + (3 - tr) * 0.045)) + ")";
+            ctx.fillStyle = PAL.folk
+              ? "hsla(" + n.hue + ", 92%, 34%, " + (0.10 + (trailN - tr) * 0.07) + ")"
+              : "hsla(" + n.hue + ", 100%, 70%, " + (PAL.black ? (0.08 + (trailN - tr) * 0.06) : (0.05 + (3 - tr) * 0.045)) + ")";
             ctx.fillText(n.glyph, GEO.cx + ca * gr, GEO.cy + sa * gr);
           }
           var pk = Math.max(0, Math.min(1, pos.p));
-          var fontPx = n.missed ? 24 : 25 + 13 * pk;
+          var fontPx = (n.missed ? 24 : 25 + 13 * pk) * (n.isSub ? 0.76 : 1);
           var discR = fontPx * 0.82;
           ctx.beginPath(); ctx.arc(pos.x, pos.y, discR, 0, Math.PI * 2);
-          ctx.fillStyle = n.missed ? "rgba(120,120,130,0.25)" : "hsla(" + n.hue + ", 95%, 58%, " + (0.16 + 0.12 * pk) + ")";
-          ctx.fill();
-          ctx.strokeStyle = n.missed ? "rgba(150,150,160,0.4)" : "hsla(" + n.hue + ", 100%, 70%, 0.8)";
-          ctx.lineWidth = 1.6; ctx.stroke();
+          if (PAL.folk) {
+            // 賑やかな地の上でも読めるよう、白い円＋濃色の太縁＋濃色グリフにする
+            ctx.fillStyle = n.missed ? "rgba(210,205,220,0.75)" : "rgba(255,255,252,0.94)";
+            ctx.fill();
+            ctx.strokeStyle = n.missed ? "rgba(120,115,135,0.6)" : "hsl(" + n.hue + ", 92%, 32%)";
+            ctx.lineWidth = 2.6; ctx.stroke();
+            ctx.beginPath(); ctx.arc(pos.x, pos.y, discR - 4, 0, Math.PI * 2);
+            ctx.strokeStyle = n.missed ? "rgba(120,115,135,0.3)" : "hsla(" + n.hue + ", 95%, 45%, 0.55)";
+            ctx.lineWidth = 1.2; ctx.stroke();
+          } else {
+            ctx.fillStyle = n.missed ? "rgba(120,120,130,0.25)" : "hsla(" + n.hue + ", 95%, 58%, " + (0.16 + 0.12 * pk) + ")";
+            ctx.fill();
+            ctx.strokeStyle = n.missed ? "rgba(150,150,160,0.4)" : "hsla(" + n.hue + ", 100%, 70%, 0.8)";
+            ctx.lineWidth = 1.6; ctx.stroke();
+          }
           ctx.font = "700 " + fontPx + "px 'Noto Serif Devanagari', 'M PLUS Rounded 1c', serif";
           ctx.shadowColor = "hsla(" + n.hue + ", 100%, 65%, 0.95)";
-          ctx.shadowBlur = n.missed ? 0 : (PAL.black ? 26 : 16); // 発光は強めるが値は上限固定で負荷を抑える
-          ctx.fillStyle = n.missed ? "rgba(170,170,180,0.55)" : (PAL.lighter ? "#ffffff" : "hsl(" + n.hue + ", 85%, 34%)");
+          ctx.shadowBlur = n.missed ? 0 : (PAL.black ? 26 : 0);
+          ctx.fillStyle = n.missed ? (PAL.folk ? "rgba(110,105,125,0.7)" : "rgba(170,170,180,0.55)") : (PAL.folk ? "hsl(" + n.hue + ", 90%, 26%)" : "#ffffff");
           ctx.fillText(n.glyph, pos.x, pos.y + fontPx * 0.04);
           ctx.restore();
         }
@@ -1361,7 +1818,12 @@
           ctx.globalAlpha = pa > 0.6 ? 1 - (pa - 0.6) / 0.4 : 1;
           ctx.font = "800 27px 'Baloo 2', 'M PLUS Rounded 1c', sans-serif";
           ctx.textAlign = "center"; ctx.textBaseline = "middle";
-          ctx.fillStyle = pop.color; ctx.shadowColor = pop.color; ctx.shadowBlur = 12;
+          if (PAL.folk) {
+            // 明るい地でも判定文字が沈まないよう濃紫の縁取りを敷く
+            ctx.shadowBlur = 0; ctx.strokeStyle = "rgba(45,10,78,0.9)"; ctx.lineWidth = 5; ctx.lineJoin = "round";
+            ctx.strokeText(pop.text, 0, 0);
+          }
+          ctx.fillStyle = pop.color; ctx.shadowColor = pop.color; ctx.shadowBlur = PAL.folk ? 0 : 12;
           ctx.fillText(pop.text, 0, 0);
           if (pop.sub) {
             ctx.font = "700 13px 'M PLUS Rounded 1c', sans-serif"; ctx.shadowBlur = 0;
@@ -1370,9 +1832,9 @@
           }
           ctx.restore();
         }
-        frameFlashEl.style.opacity = String((reducedMotion ? 0.35 : 0.55) * pulse);
+        frameFlashEl.style.opacity = String((reducedMotion ? 0.35 : 0.55) * pulse * (PAL.folk ? 0.25 : 1));
         var pre = phase > 0.68 ? (phase - 0.68) / 0.32 : 0;
-        edgeGlowEl.style.opacity = String(reducedMotion ? pre * 0.35 : pre * 0.85);
+        edgeGlowEl.style.opacity = String((reducedMotion ? pre * 0.35 : pre * 0.85) * (PAL.folk ? 0.45 : 1));
         edgeGlowEl.style.boxShadow = "inset 0 0 110px 30px hsla(" + hueBase + ", 95%, 62%, 0.55), inset 0 0 46px 6px hsla(" + ((hueBase + 140) % 360) + ", 95%, 65%, 0.5)";
       }
 
@@ -1408,25 +1870,27 @@
       function startGame() {
         S = newState();
         S.playing = true;
+        S.pat = syllablePatternEnabled() ? newPatternState() : null;
         S.now = 0;
         var iv = intervalMs();
-        S.lastScheduledBeat = -iv;
+        S.lastScheduledBeat = iv * (TRAVEL_BEATS + LEAD_IN_BEATS) - iv * noteIntervalBeats();
         S.pulseCursor = 0;
-        S.nextBeatTime = iv * (TRAVEL_BEATS + 1);
+        S.nextBeatTime = iv * (TRAVEL_BEATS + LEAD_IN_BEATS);
         S.startedAt = performance.now();
-        lastScoreShown = -1; lastComboShown = -1; lastLifeShown = "";
+        lastScoreShown = -1; lastComboShown = -1; lastLifeShown = ""; lastBpmShown = -1;
         scoreEl.textContent = "0"; comboEl.textContent = ""; comboLabelEl.textContent = "";
         btnHintEl.style.display = "";
         ensureAudio();
+        startChantLoop(); // お経コーラスは開始から終了までバックで流れ続ける
         startOverlay.hidden = true; pauseOverlay.hidden = true; resultOverlay.hidden = true; rankingOverlay.hidden = true;
         updateHUD(false);
-        showPhraseToast("唱 え 始 め", "同じ節が4回くり返されます");
+        showPhraseToast("唱 え 始 め", syllablePatternEnabled() ? "一拍ごとに流れ、2音節の拍で割り込みます" : "一拍ごとに、一定に流れ続けます");
       }
       function pauseGame() {
         if (!S.playing || S.paused || S.over) return;
-        S.paused = true; stopChant(0.2); fillStats(); pauseOverlay.hidden = false;
+        S.paused = true; stopChantLoop(0.25); fillStats(); pauseOverlay.hidden = false;
       }
-      function resumeGame() { S.paused = false; pauseOverlay.hidden = true; ensureAudio(); }
+      function resumeGame() { S.paused = false; pauseOverlay.hidden = true; ensureAudio(); startChantLoop(); }
       function accuracy() {
         var c = S.counts, total = c.perfect + c.great + c.good + c.miss;
         return total ? Math.round((c.perfect * 1 + c.great * 0.7 + c.good * 0.4) / total * 100) + "%" : "—";
@@ -1445,7 +1909,7 @@
       function gameOver(reason) {
         if (S.over) return;
         S.over = true; S.playing = false; S.overAt = performance.now();
-        stopChant(0.5);
+        stopChantLoop(0.6);
         document.getElementById("resultTitle").textContent = reason === "miss" ? "終了 — ミスの上限" : "終了";
         document.getElementById("resultReason").textContent =
           (reason === "miss" ? diff().label + "：ミス " + S.counts.miss + " 回で終了しました。" : diff().label + "：ここまでの記録です。") +
@@ -1627,6 +2091,8 @@
         setSeg("segDiff", settings.difficulty);
         setSeg("segDiffStart", settings.difficulty);
         setSeg("segPattern", settings.patternPreset);
+        var bpmDisp = document.getElementById("bpmStartDisp");
+        if (bpmDisp) bpmDisp.textContent = "開始BPM " + settings.bpm;
         var sw = document.querySelectorAll("#colorSwatches .swatch");
         for (var i = 0; i < sw.length; i++) sw[i].setAttribute("aria-pressed", sw[i].getAttribute("data-val") === settings.colorPreset ? "true" : "false");
         updateHUD(false);
@@ -1658,14 +2124,21 @@
       bindSeg("segVib", function (v) { settings.vib = v; saveSettings(); if (v === "hit") vibrateHit(); });
       bindSeg("segSound", function (v) {
         settings.sound = (v === "on"); saveSettings();
-        if (settings.sound) previewHitSound();
-        else stopChant(0.05);
+        if (settings.sound) { previewHitSound(); if (S.playing && !S.paused && !S.over) startChantLoop(); }
+        else stopChantLoop(0.1);
       });
       bindSeg("segChorus", function (v) {
         settings.chorus = v; saveSettings();
         if (chorusBus && audioCtx) chorusBus.gain.setTargetAtTime(chorusLevel(), audioCtx.currentTime, 0.05);
-        if (v === "off") stopChant(0.1);
-        else if (settings.sound) { ensureAudio(); if (audioCtx) { chantStep++; if (!chant) startChant(); else glideChant(); scheduleChantRelease(); } }
+        if (v === "off") stopChantLoop(0.15);
+        else if (settings.sound) {
+          ensureAudio();
+          if (audioCtx) {
+            startChantLoop();
+            // プレイ中でなければ試聴として数秒だけ流して止める
+            if (!S.playing) chantPreviewTimer = setTimeout(function () { if (!S.playing) stopChantLoop(0.5); }, 6800);
+          }
+        }
       });
       bindSeg("segHitSound", function (v) { settings.hitSound = v; saveSettings(); previewHitSound(); });
       bindSeg("segBpm", function (v) {
@@ -1673,7 +2146,7 @@
         if (nb === settings.bpm) return;
         settings.bpm = nb; saveSettings();
         if (S.playing && !S.over) {
-          S.nextBeatTime = S.lastScheduledBeat + intervalMs();
+          S.nextBeatTime = S.lastScheduledBeat + intervalMs() * noteIntervalBeats();
           S.pulseCursor = S.now;
         }
       });
@@ -1696,7 +2169,22 @@
           document.getElementById(m[0]).value = settings[m[2]];
           document.getElementById(m[1]).textContent = settings[m[2]];
         });
+        document.getElementById("hitVolume").value = settings.hitVolume;
+        document.getElementById("hitVolumeVal").textContent = settings.hitVolume + "%";
       }
+      // 効果音量スライダー：ヒット音バスだけに即時反映し、動かしたら試聴音で確認できるようにする
+      (function bindHitVolume() {
+        var el = document.getElementById("hitVolume"), out = document.getElementById("hitVolumeVal");
+        var previewTimer = null;
+        el.addEventListener("input", function () {
+          settings.hitVolume = Math.max(0, Math.min(100, parseInt(el.value, 10) || 0));
+          out.textContent = settings.hitVolume + "%";
+          saveSettings();
+          applyHitVolume();
+          if (previewTimer) clearTimeout(previewTimer);
+          previewTimer = setTimeout(function () { previewHitSound(); }, 220);
+        });
+      })();
       bindSlider("tintR", "tintRVal", "tintR");
       bindSlider("tintG", "tintGVal", "tintG");
       bindSlider("tintB", "tintBVal", "tintB");
