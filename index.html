@@ -666,13 +666,17 @@
         { g: "ऐं", hue: 200 }, { g: "श्रीं", hue: 20 }, { g: "क्लीं", hue: 150 },
         { g: "गं", hue: 100 }, { g: "क्रौं", hue: 290 }
       ];
-      function edgeDist(ang) {
-        var c = Math.cos(ang), s = Math.sin(ang), d = Infinity;
-        if (c > 0.001) d = Math.min(d, (W - GEO.cx) / c);
-        if (c < -0.001) d = Math.min(d, GEO.cx / -c);
-        if (s > 0.001) d = Math.min(d, (H - GEO.cy) / s);
-        if (s < -0.001) d = Math.min(d, GEO.cy / -s);
-        return isFinite(d) ? d : 300;
+      // 出現位置は全方向で共通の半径を持つ「真円」の上にする。
+      // 以前は方向ごとに画面端までの距離＋42pxだったため、中心から端までが
+      // 近い方向（左右）は遅く、遠い方向（下・斜め）は速く近づいて見え、
+      // 「残り距離＝残り時間」の読みが方向ごとに狂っていた。
+      // 半径は中心から最も遠い画面の隅までの距離＋42pxで、全方向とも
+      // 必ず画面外から発生し、飛来時間（4拍）が同じなので近づく速さも
+      // 全方向で完全に揃う。
+      function spawnRadius() {
+        var dx = Math.max(GEO.cx, W - GEO.cx);
+        var dy = Math.max(GEO.cy, H - GEO.cy);
+        return Math.sqrt(dx * dx + dy * dy) + 42;
       }
       var toastTimer = null;
       function showPhraseToast(big, small) {
@@ -683,7 +687,9 @@
         toastTimer = setTimeout(function () { phraseToastEl.classList.remove("show"); }, 1500);
       }
 
-      // 基本ノーツは1拍ごとに等間隔で置く（飛来速度・リードタイムは従来どおり）。
+      // 基本ノーツは1拍ごとに等間隔で置く（飛来時間・リードタイムは従来どおり）。
+      // 出現位置は中心を円心とする真円の上（spawnRadius）で全方向共通なので、
+      // どの方向から来ても近づく速さは同じになる。
       // ふつう／むずかしいでは、音節パターン生成器が2音節と判定した拍にだけ、
       // その拍の後半（+0.5拍）へ同じグリフ・同じ飛来方向の小さな割り込みノーツを追加する。
       // 割り込みも飛来時間は4拍で一定なので、基本ノーツの半拍遅れで中心に届く。
@@ -699,14 +705,15 @@
           var beatInfo = S.pat ? patternBeatInfo(S.pat) : { isDouble: false, type: null };
           var isDouble = beatInfo.isDouble;
           S.patternSeq.push(beatInfo);
+          var spawnR = spawnRadius();
           S.notes.push({
             hitTime: t, travel: iv * TRAVEL_BEATS, glyph: seed.g, hue: seed.hue,
-            angle: ang, startR: edgeDist(ang) + 42, judged: false, missed: false, isSub: false, subType: null
+            angle: ang, startR: spawnR, judged: false, missed: false, isSub: false, subType: null
           });
           if (isDouble) {
             S.notes.push({
               hitTime: t + iv * 0.5, travel: iv * TRAVEL_BEATS, glyph: seed.g, hue: seed.hue,
-              angle: ang, startR: edgeDist(ang) + 42, judged: false, missed: false, isSub: true, subType: beatInfo.type
+              angle: ang, startR: spawnR, judged: false, missed: false, isSub: true, subType: beatInfo.type
             });
           }
           if (S.noteSeq % perBeat === 0) { S.beatRings.push({ t0: t }); S.beatIndex++; }
